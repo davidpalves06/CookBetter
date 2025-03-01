@@ -6,15 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuthenticationResponse {
-    private String message;
-    private AuthenticationDTO user;
+    private String errorMessage;
 
-    public AuthenticationResponse(String message) {
-        this.message = message;
+    public AuthenticationResponse(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
-    public AuthenticationResponse(String message, AuthenticationDTO user) {
-        this.message = message;
-        this.user = user;
-    }
 }

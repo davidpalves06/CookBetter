@@ -1,8 +1,9 @@
 package dev.davidpalves.cookbetter.auth.api;
 
+import dev.davidpalves.cookbetter.auth.configuration.AuthToken;
+import dev.davidpalves.cookbetter.auth.configuration.AuthTokenEncrypter;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationResponse;
-import dev.davidpalves.cookbetter.auth.dto.AuthenticationResult;
 import dev.davidpalves.cookbetter.auth.service.AuthenticationService;
 import dev.davidpalves.cookbetter.models.ServiceResult;
 import jakarta.servlet.http.Cookie;
@@ -13,38 +14,45 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping
+@RequestMapping("/auth")
 @Slf4j
 public class AuthenticationController {
     private static final String LOG_TITLE = "[AuthenticationController] -";
     public static final int AUTH_COOKIE_EXPIRY = 60 * 60 * 24 * 30;
+    public static final int AUTH_COOKIE_REFRESH = 60 * 15;
     private final AuthenticationService authenticationService;
+    private final AuthTokenEncrypter authTokenEncrypter;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService, AuthTokenEncrypter authTokenEncrypter) {
         this.authenticationService = authenticationService;
+        this.authTokenEncrypter = authTokenEncrypter;
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthenticationResponse> registerUser(@RequestBody AuthenticationDTO authDTO) throws NoSuchAlgorithmException {
+    public ResponseEntity<AuthenticationResponse> signupUser(@RequestBody AuthenticationDTO authDTO, HttpServletResponse response) {
         log.info("{} Register request received", LOG_TITLE);
         boolean validated = AuthenticationRequestValidator.validateRegisterDTO(authDTO);
         if (validated) {
             log.debug("{} Request is valid, proceeding to registering the user", LOG_TITLE);
-            ServiceResult<AuthenticationResult> serviceResult = authenticationService.registerUser(authDTO);
+            ServiceResult<String> serviceResult = authenticationService.signupUser(authDTO);
             if (serviceResult.isSuccess()) {
-                log.info("{} User registered successfully", LOG_TITLE);
-                AuthenticationResult authenticationResult = serviceResult.getData();
-                return new ResponseEntity<>(new AuthenticationResponse(authenticationResult.getMessage(), authenticationResult.getUser()), HttpStatus.CREATED);
+                try {
+                    log.info("{} User registered successfully", LOG_TITLE);
+                    Cookie authCookie = createAuthCookie(authDTO.getEmail());
+                    response.addCookie(authCookie);
+                    return new ResponseEntity<>(HttpStatus.CREATED);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
-            if (serviceResult.getErrorCode() == 1) {
-                log.info("{} Registration failed because email was already taken.", LOG_TITLE);
-                return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.CONFLICT);
-            }
-            if (serviceResult.getErrorCode() == 2) {
-                log.info("{} Registration failed because username was already taken.", LOG_TITLE);
+            else {
+                log.info("{} Registration failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
+                if (serviceResult.getErrorCode() == 2) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
                 return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.CONFLICT);
             }
         }
@@ -57,44 +65,42 @@ public class AuthenticationController {
         boolean validated = AuthenticationRequestValidator.validateLoginDTO(authDTO);
         if (validated) {
             log.debug("{} Request is valid, proceeding to logging in the user", LOG_TITLE);
-            ServiceResult<AuthenticationResult> serviceResult = authenticationService.loginUser(authDTO);
+            ServiceResult<String> serviceResult = authenticationService.loginUser(authDTO);
             if (serviceResult.isSuccess()) {
-                Cookie authCookie = createAuthCookie(serviceResult);
-                response.addCookie(authCookie);
-                log.info("{} Login successfully", LOG_TITLE);
-                AuthenticationResult authenticationResult = serviceResult.getData();
-                return new ResponseEntity<>(new AuthenticationResponse(authenticationResult.getMessage(),authenticationResult.getUser()), HttpStatus.OK);
+                try {
+                    Cookie authCookie = createAuthCookie(authDTO.getEmail());
+                    response.addCookie(authCookie);
+                    log.info("{} Login successfully", LOG_TITLE);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } catch (Exception e) {
+                    log.warn("{} INTERNAL ERROR. Failed to create auth token. ", LOG_TITLE);
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
-            if (serviceResult.getErrorCode() == 1) {
-                log.info("{} Unauthorized access. Login failed", LOG_TITLE);
+            else {
+                log.info("{} Unauthorized access. Login failed due to {}", LOG_TITLE,serviceResult.getErrorMessage());
+                if (serviceResult.getErrorCode() == 2) {
+                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
                 return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.UNAUTHORIZED);
-            }
-            else if (serviceResult.getErrorCode() == 2) {
-                log.info("{} Could not found user. Login failed", LOG_TITLE);
-                return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.NOT_FOUND);
             }
         }
         return createBadRequestResponse();
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<AuthenticationResponse> checkAuthentication(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> checkAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info("{} Check authentication request received", LOG_TITLE);
-        ServiceResult<AuthenticationResult> serviceResult = authenticationService.checkAuthentication(request.getCookies());
-        if (serviceResult.isSuccess()) {
-            log.info("{} User is authenticated", LOG_TITLE);
-            Cookie authCookie = createAuthCookie(serviceResult);
+        AuthToken authToken = (AuthToken) request.getAttribute("authToken");
+        if (authToken != null && authToken.needsRefresh()) {
+            Cookie authCookie = createAuthCookie(authToken.email());
             response.addCookie(authCookie);
-            AuthenticationResult authenticationResult = serviceResult.getData();
-            return new ResponseEntity<>(new AuthenticationResponse(authenticationResult.getMessage(),authenticationResult.getUser()), HttpStatus.OK);
         }
-        log.info("{} User is not authenticated", LOG_TITLE);
-        removeAuthCookie(response);
-        return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<AuthenticationResponse> logoutUser(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> logoutUser(HttpServletResponse response) {
         log.info("{} Logout request received", LOG_TITLE);
         removeAuthCookie(response);
         return new ResponseEntity<>(new AuthenticationResponse("User logged out successfully!"), HttpStatus.OK);
@@ -106,10 +112,9 @@ public class AuthenticationController {
         return new ResponseEntity<>(new AuthenticationResponse("Request Malformed"), HttpStatus.BAD_REQUEST);
     }
 
-    private Cookie createAuthCookie(ServiceResult<AuthenticationResult> serviceResult) {
-        AuthenticationResult authenticationResult = serviceResult.getData();
-        String accessToken = authenticationResult.getAccessToken();
-        Cookie authCookie = new Cookie("authToken",accessToken);
+    private Cookie createAuthCookie(String email) throws Exception {
+        AuthToken authToken = new AuthToken(email, LocalDateTime.now().plusSeconds(AUTH_COOKIE_REFRESH), LocalDateTime.now().plusSeconds(AUTH_COOKIE_EXPIRY));
+        Cookie authCookie = new Cookie("authToken", authTokenEncrypter.encrypt(authToken));
         authCookie.setHttpOnly(true);
         //TODO: HANDLE ONLY HTTPS TRAFFIC
 //                authCookie.setSecure(true);

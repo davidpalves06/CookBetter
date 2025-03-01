@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private static final String[] WHITELIST_PATHS = {"/auth/*",};
+    private static final String[] WHITELIST_PATHS = {"/auth/login","/auth/signup"};
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final AuthTokenEncrypter authTokenEncrypter;
 
@@ -33,6 +33,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                         AuthToken authToken = authTokenEncrypter.decrypt(token);
                         boolean expired = authToken.isExpired();
                         if (!expired) {
+                            request.setAttribute("authToken", authToken);
                             String email = authToken.email();
                             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, null, List.of());
                             SecurityContextHolder.getContext()

@@ -70,7 +70,7 @@ public class AuthRequestValidatorTest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
 
-        assertTrue(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertTrue(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
     }
 
@@ -82,19 +82,19 @@ public class AuthRequestValidatorTest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setEmail("test@.org");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setEmail("");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setEmail("@test.org");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
     }
 
     @Test
@@ -105,23 +105,23 @@ public class AuthRequestValidatorTest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setPassword("password");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setPassword("Password");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setPassword("PASSWORD123");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setPassword("Pas2WO");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
     }
 
     @Test
@@ -132,19 +132,19 @@ public class AuthRequestValidatorTest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName(" Test");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setName("Test ");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setName("Test");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
 
         authenticationDTO.setName("");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
     }
 
     @Test
@@ -155,7 +155,7 @@ public class AuthRequestValidatorTest {
         authenticationDTO.setUsername("Test");
         authenticationDTO.setName("Test Name");
 
-        assertFalse(AuthenticationRequestValidator.validateLoginDTO(authenticationDTO));
+        assertFalse(AuthenticationRequestValidator.validateRegisterDTO(authenticationDTO));
     }
 
 }
