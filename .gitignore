@@ -56,3 +56,7 @@ build/
 
 ### VS Code ###
 .vscode/
+node_modules/
+package-lock.json
+dist/
+styles.css

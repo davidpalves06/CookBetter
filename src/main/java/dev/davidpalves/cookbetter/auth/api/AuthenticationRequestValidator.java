@@ -48,7 +48,7 @@ public class AuthenticationRequestValidator {
     }
 
     private static boolean validateUsername(String username) {
-        boolean validUsername = username != null && username.length() >= 6;
+        boolean validUsername = username != null && username.length() >= 6 && username.length() <= 16;
         if (!validUsername) {
             log.debug("{} Invalid username: {}",LOG_TITLE, username);
         }

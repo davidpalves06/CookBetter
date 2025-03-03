@@ -1,24 +1,38 @@
 package dev.davidpalves.cookbetter.repository;
 
 import dev.davidpalves.cookbetter.models.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class UserRepository {
 
     private final DataSource dataSource;
     private final ThreadLocal<Connection> connectionThreadLocal = new ThreadLocal<>();
 
-    //TODO : CREATE TABLE ON START
-    public UserRepository(DataSource dataSource) {
+    public UserRepository(DataSource dataSource) throws SQLException {
         this.dataSource = dataSource;
+        createUserTableIfNotExists();
+    }
+
+    private void createUserTableIfNotExists() throws SQLException {
+        String sql = "CREATE TABLE IF NOT EXISTS users (" +
+                "id SERIAL PRIMARY KEY, " +
+                "name VARCHAR(100) NOT NULL, " +
+                "email VARCHAR(100) UNIQUE NOT NULL," +
+                "username VARCHAR(100) UNIQUE NOT NULL," +
+                "password VARCHAR(100) NOT NULL" +
+                ")";
+
+        try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
+            log.info("Creating user table if it does not exist");
+            stmt.execute(sql);
+        }
     }
 
     public void startConnection() throws SQLException {
@@ -46,9 +60,9 @@ public class UserRepository {
         return executeExistsQuery(email, connection, sql);
     }
 
-    private boolean executeExistsQuery(String username, Connection connection, String sql) throws SQLException {
+    private boolean executeExistsQuery(String parameter, Connection connection, String sql) throws SQLException {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, username);
+            stmt.setString(1, parameter);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getLong(1) > 0;
@@ -100,6 +114,13 @@ public class UserRepository {
                 }
                 return -1;
             }
+        }
+    }
+
+    public void deleteAllUsers() throws SQLException {
+        String sql = "TRUNCATE TABLE users RESTART IDENTITY";
+        try (Connection connection = dataSource.getConnection();Statement stmt = connection.createStatement()) {
+            stmt.execute(sql);
         }
     }
 

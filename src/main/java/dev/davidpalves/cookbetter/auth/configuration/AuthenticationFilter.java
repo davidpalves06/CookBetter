@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private static final String[] WHITELIST_PATHS = {"/auth/login","/auth/signup"};
+    private static final String[] PRIVATE_PATHS = {"/auth/verify","/auth/logout"};
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final AuthTokenEncrypter authTokenEncrypter;
 
@@ -54,7 +54,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestPath = request.getRequestURI();
-        return Arrays.stream(WHITELIST_PATHS).anyMatch(whiteList -> pathMatcher.match(whiteList, requestPath));
+        return Arrays.stream(PRIVATE_PATHS).noneMatch(privatePath -> pathMatcher.match(privatePath, requestPath));
     }
 
 }

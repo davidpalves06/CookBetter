@@ -25,6 +25,7 @@ public class AuthenticationService {
 
     public ServiceResult<String> signupUser(AuthenticationDTO userDTO) {
         log.debug("{} Registering user with email {}", LOG_TITLE,userDTO.getEmail());
+        ServiceResult<String> serviceResult;
         try {
             String password = userDTO.getPassword();
             String encodedPassword = PasswordHasher.hash(password);
@@ -37,21 +38,26 @@ public class AuthenticationService {
             userRepository.startConnection();
             if (!userRepository.existsByEmail(user.getEmail())) {
                 if (userRepository.existsByUsername(user.getUsername())) {
-                    return new ServiceResult<>(false,null,"Username already taken",1);
-                }
-                log.debug("{} Saving user in database", LOG_TITLE);
-                if (userRepository.save(user) != -1) {
-                    return new ServiceResult<>(true,"User registered.",null,0);
+                    log.debug("{} Could not register user because username was already taken", LOG_TITLE);
+                    serviceResult = new ServiceResult<>(false, null, "Username already taken", 1);
                 } else {
-                    return new ServiceResult<>(false,"User could not be registered",null,2);
+                    log.debug("{} Saving user in database", LOG_TITLE);
+                    if (userRepository.save(user) != -1) {
+                        serviceResult = new ServiceResult<>(true,"User registered.",null,0);
+                    } else {
+                        serviceResult = new ServiceResult<>(false,"User could not be registered",null,2);
+                    }
                 }
+            } else {
+                log.debug("{} Could not register user because email was already taken", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Email already taken",1);
             }
             userRepository.closeConnection();
+            return serviceResult;
         } catch (SQLException | NoSuchAlgorithmException e) {
+            log.error(String.valueOf(e));
             return new ServiceResult<>(false,null,"Internal Error",2);
         }
-        log.debug("{} Could not register user because email was already taken", LOG_TITLE);
-        return new ServiceResult<>(false,null,"Email already taken",1);
     }
 
     public ServiceResult<String> loginUser(AuthenticationDTO userDTO) {
@@ -63,14 +69,14 @@ public class AuthenticationService {
             if (financialUserOptional.isPresent()) {
                 log.debug("{} User exists", LOG_TITLE);
                 User financialUser = financialUserOptional.get();
-                    if (PasswordHasher.matches(userDTO.getPassword(), financialUser.getPassword())) {
-                        log.debug("{} Password matches", LOG_TITLE);
-                        return new ServiceResult<>(true,"User logged in.",null,0);
-                    }
-                    else {
-                        log.debug("{} Password does not match", LOG_TITLE);
-                        return new ServiceResult<>(false,null,"Wrong password",1);
-                    }
+                if (PasswordHasher.matches(userDTO.getPassword(), financialUser.getPassword())) {
+                    log.debug("{} Password matches", LOG_TITLE);
+                    return new ServiceResult<>(true,"User logged in.",null,0);
+                }
+                else {
+                    log.debug("{} Password does not match", LOG_TITLE);
+                    return new ServiceResult<>(false,null,"Wrong password",1);
+                }
             }
             else {
                 log.debug("{} User does not exist", LOG_TITLE);
