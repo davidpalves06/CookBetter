@@ -5,7 +5,7 @@ export { };
 const authenticationBtnDiv = document.getElementById('authenticationBtnDiv') as HTMLDivElement;
 const loggedInDiv = document.getElementById('loggedInDiv') as HTMLDivElement;
 const profileIcon = document.getElementById('profileIcon') as HTMLElement;
-const logoutBtn = document.getElementById('logoutBtn') as HTMLLIElement;
+const getStartedBtn = document.getElementById('getStartedBtn') as HTMLButtonElement;
 
 
 profileIcon.addEventListener('click', (event: Event) => {
@@ -77,9 +77,15 @@ if (loggedIn) {
     storage.setItem<string>("logged", "true", 300)
     authenticationBtnDiv.classList.add('hidden')
     loggedInDiv.classList.remove('hidden')
+    getStartedBtn.addEventListener('click',() => {
+        window.location.href = "/explore"
+    })
 } else {
     authenticationBtnDiv.classList.remove('hidden')
     loggedInDiv.classList.add('hidden')
+    getStartedBtn.addEventListener('click',() => {
+        window.location.href = "/login"
+    })
 }
 
 

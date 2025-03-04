@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cook Better</title>
     <link href="/styles.css" rel="stylesheet">
+    <link rel="preload" href="/landingphoto.jpg" as="image">
     <script src="dist/index.js" defer type="module"></script>
 </head>
 
-<body class="bg-gray-100 font-sans">
-    <nav class="bg-white shadow p-4">
+<body class="font-sans min-h-screen flex flex-col">
+    <nav class="bg-white shadow-md p-4">
         <div class="flex justify-between md:justify-around items-center">
-            <h1 class="text-2xl font-bold text-orange-600">CookBetter</h1>
+            <h1 class="text-4xl font-bold text-orange-600">CookBetter</h1>
             <div id="authenticationBtnDiv" class="hidden">
                 <a href="/login" class="px-4 py-2 text-orange-600 hover:text-orange-800">
                     Log In
@@ -20,10 +21,10 @@
                 <a href="/signup" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">Sign Up</a>
             </div>
             <div class="flex flex-row gap-x-10 items-center" id="loggedInDiv">
-                <a href="/explore" class="hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">
+                <a href="/explore" class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">
                     Explore
                 </a>
-                <a href="/search" class="hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">Search</a>
+                <a href="/search" class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">Search</a>
                 <div class="hidden relative md:inline-block">
                     <svg aria-label="profile-icon" width="32" height="32"
                         class="border-2 rounded-3xl text-orange-400 cursor-pointer" viewBox="0 0 24 24" fill="none"
@@ -38,10 +39,10 @@
                         <ul class="py-2">
                             <a href="/profile">
                                 <li
-                                    class="px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer">
+                                    class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer">
                                     Profile</li>
                             </a>
-                            <li class="px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
+                            <li class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
                             </zul>
                     </div>
                 </div>
@@ -62,45 +63,47 @@
                         <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                     <ul class="text-center space-y-6 text-lg h-96 flex flex-col items-center justify-center">
-                        <a href="/explore"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Explore</li></a>
-                        <a href="/search"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Search</li></a>
-                        <a href="/profile"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Profile</li></a>
-                        <li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
+                        <a href="/explore"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Explore</li></a>
+                        <a href="/search"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Search</li></a>
+                        <a href="/profile"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Profile</li></a>
+                        <li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
                     </ul>
                 </div>
             </div>
         </div>
     </nav>
 
-    <section class="max-w-6xl mx-auto my-12 text-center">
-        <h2 class="text-4xl font-bold text-gray-800 mb-4">Share Your Culinary Creations</h2>
-        <p class="text-lg text-gray-600 mb-6">Join a community of food lovers, share recipes, and discover new flavors.
-        </p>
-        <button id="getStartedBtn" class="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Get
-            Started</button>
+    <section class="w-full h-80 md:h-96 text-center bg-[url('/landingphoto.jpg')] bg-cover bg-no-repeat bg-center ">
+        <div class="backdrop-blur-xs py-12 h-full bg-gray-200/50 flex flex-col justify-around items-center">
+            <div class="w-full">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-4">Share Your Culinary Creations</h2>
+                <p class="text-lg md:text-xl text-black mb-6 mx-auto w-11/12 text-center">Join a community of food lovers, share recipes, and discover new flavors.</p>
+            </div>
+            <button id="getStartedBtn" class="px-4 py-2 md:px-6 md:py-3 text-lg bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Get Started</button>
+        </div>
     </section>
 
-    <section class="bg-white py-12">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
-            <div class="text-center">
-                <img src="" alt="Share Icon" class="mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Share Recipes</h3>
+    <section class="bg-white py-8">
+        <div class="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div class="flex flex-col items-center mx-auto">
+                <h3 class="text-3xl font-semibold text-gray-800">Share Recipes</h3>
                 <p class="text-gray-600">Post your favorite dishes with ease.</p>
+                <img src="/sharefood.jpg" alt="Share Icon" class="rounded-lg w-96 h-60">
             </div>
-            <div class="text-center">
-                <img src="" alt="Discover Icon" class="mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Discover New Ideas</h3>
+            <div class="text-center flex flex-col items-center mx-auto">
+                <h3 class="text-3xl font-semibold text-gray-800">Discover New Ideas</h3>
                 <p class="text-gray-600">Explore recipes from around the world.</p>
+                <img src="/discoverfood.jpg" alt="Discover Icon" class="rounded-lg w-96 h-60">
             </div>
-            <div class="text-center">
-                <img src="" alt="Connect Icon" class="mx-auto mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">Connect</h3>
+            <div class="text-center flex flex-col md:col-span-2 xl:col-span-1 items-center mx-auto">
+                <h3 class="text-3xl font-semibold text-gray-800">Connect</h3>
                 <p class="text-gray-600">Engage with fellow food enthusiasts.</p>
+                <img src="/connectfood.jpg" alt="Connect Icon" class="rounded-lg w-96 h-60">
             </div>
         </div>
     </section>
 
-    <footer class="bg-gray-800 text-white py-6">
+    <footer class="bg-gray-800 text-white py-6 w-full mt-auto">
         <div class="max-w-6xl mx-auto text-center">
             <p>&copy; 2025 CookBetter. All rights reserved.</p>
         </div>
