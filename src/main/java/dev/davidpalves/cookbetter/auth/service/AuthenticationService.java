@@ -64,14 +64,14 @@ public class AuthenticationService {
         log.debug("{} Checking if user exists", LOG_TITLE);
         try {
             userRepository.startConnection();
-            Optional<User> financialUserOptional = userRepository.findByEmail(userDTO.getEmail());
+            Optional<User> userOptional = userRepository.findByEmail(userDTO.getEmail());
             userRepository.closeConnection();
-            if (financialUserOptional.isPresent()) {
+            if (userOptional.isPresent()) {
                 log.debug("{} User exists", LOG_TITLE);
-                User financialUser = financialUserOptional.get();
-                if (PasswordHasher.matches(userDTO.getPassword(), financialUser.getPassword())) {
+                User user = userOptional.get();
+                if (PasswordHasher.matches(userDTO.getPassword(), user.getPassword())) {
                     log.debug("{} Password matches", LOG_TITLE);
-                    return new ServiceResult<>(true,"User logged in.",null,0);
+                    return new ServiceResult<>(true,user.getUsername(),null,0);
                 }
                 else {
                     log.debug("{} Password does not match", LOG_TITLE);

@@ -15,10 +15,10 @@
         <div class="flex justify-between md:justify-around items-center">
             <h1 class="text-4xl font-bold text-orange-600">CookBetter</h1>
             <div id="authenticationBtnDiv" class="hidden">
-                <a href="/login" class="px-4 py-2 text-orange-600 hover:text-orange-800">
+                <a href="/login" class="text-lg px-4 py-2 text-orange-600 hover:text-orange-800 hover:font-bold">
                     Log In
                 </a>
-                <a href="/signup" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">Sign Up</a>
+                <a href="/signup" class="px-4 py-2 text-lg bg-orange-600 text-white rounded hover:bg-orange-700 hover:font-bold">Sign Up</a>
             </div>
             <div class="flex flex-row gap-x-10 items-center" id="loggedInDiv">
                 <a href="/explore" class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">
@@ -37,7 +37,7 @@
                     <div id="profileMenu"
                         class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                         <ul class="py-2">
-                            <a href="/profile">
+                            <a href="/profile" class="profile-btn">
                                 <li
                                     class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer">
                                     Profile</li>
@@ -65,7 +65,7 @@
                     <ul class="text-center space-y-6 text-lg h-96 flex flex-col items-center justify-center">
                         <a href="/explore"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Explore</li></a>
                         <a href="/search"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Search</li></a>
-                        <a href="/profile"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Profile</li></a>
+                        <a href="/profile" class="profile-btn"><li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Profile</li></a>
                         <li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
                     </ul>
                 </div>
@@ -88,17 +88,23 @@
             <div class="flex flex-col items-center mx-auto">
                 <h3 class="text-3xl font-semibold text-gray-800">Share Recipes</h3>
                 <p class="text-gray-600">Post your favorite dishes with ease.</p>
-                <img src="/sharefood.jpg" alt="Share Icon" class="rounded-lg w-96 h-60">
+                <div class="overflow-hidden rounded-lg">
+                    <img src="/sharefood.jpg" alt="Share Image" class="w-96 h-60 hover:scale-110 transition-transform duration-300 ease-in-out">
+                </div>
             </div>
             <div class="text-center flex flex-col items-center mx-auto">
                 <h3 class="text-3xl font-semibold text-gray-800">Discover New Ideas</h3>
                 <p class="text-gray-600">Explore recipes from around the world.</p>
-                <img src="/discoverfood.jpg" alt="Discover Icon" class="rounded-lg w-96 h-60">
+                <div class="overflow-hidden rounded-lg">
+                    <img src="/discoverfood.jpg" alt="Discover Image" class="w-96 h-60 hover:scale-110 transition-transform duration-300 ease-in-out">
+                </div>
             </div>
             <div class="text-center flex flex-col md:col-span-2 xl:col-span-1 items-center mx-auto">
                 <h3 class="text-3xl font-semibold text-gray-800">Connect</h3>
                 <p class="text-gray-600">Engage with fellow food enthusiasts.</p>
-                <img src="/connectfood.jpg" alt="Connect Icon" class="rounded-lg w-96 h-60">
+                <div class="overflow-hidden rounded-lg">
+                    <img src="/connectfood.jpg" alt="Connect Image" class="w-96 h-60 hover:scale-110 transition-transform duration-300 ease-in-out">
+                </div>
             </div>
         </div>
     </section>

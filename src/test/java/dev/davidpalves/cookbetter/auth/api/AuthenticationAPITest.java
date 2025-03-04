@@ -44,6 +44,7 @@ public class AuthenticationAPITest {
 
         User mockUser = new User();
         mockUser.setEmail("test@test.com");
+        mockUser.setUsername("TestUser");
         mockUser.setPassword(PasswordHasher.hash("Password123"));
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(mockUser));
@@ -53,7 +54,7 @@ public class AuthenticationAPITest {
         Cookie cookie = servletResponse.getCookie("authToken");
         assertNotNull(cookie);
         assertEquals("authToken",cookie.getName());
-        assertEquals("test@test.com", this.authTokenEncrypter.decrypt(cookie.getValue()).email());
+        assertEquals("TestUser", this.authTokenEncrypter.decrypt(cookie.getValue()).username());
         assertEquals(AUTH_COOKIE_EXPIRY,cookie.getMaxAge());
     }
 
@@ -154,7 +155,7 @@ public class AuthenticationAPITest {
         Cookie cookie = servletResponse.getCookie("authToken");
         assertNotNull(cookie);
         assertEquals("authToken",cookie.getName());
-        assertEquals("test@test.com", this.authTokenEncrypter.decrypt(cookie.getValue()).email());
+        assertEquals("TestUser", this.authTokenEncrypter.decrypt(cookie.getValue()).username());
         assertEquals(AUTH_COOKIE_EXPIRY,cookie.getMaxAge());
     }
 

@@ -42,7 +42,7 @@ public class AuthenticationConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean<AuthenticationFilter> JWTAuthRegistration(AuthenticationFilter filter) {
+    public FilterRegistrationBean<AuthenticationFilter> authenticationFilterRegistrationBean(AuthenticationFilter filter) {
         FilterRegistrationBean<AuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;

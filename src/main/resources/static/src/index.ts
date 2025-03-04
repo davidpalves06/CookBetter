@@ -27,7 +27,7 @@ async function logout() {
         method: "GET"
     });
     if (logoutResponse.ok) {
-        window.location.reload()
+        window.location.reload();
         storage.removeItem("logged")
     }
 };
@@ -69,24 +69,47 @@ const verifyAuthAJAX = async () => {
             "Content-Type": "application/json"
         }
     })
-    return verifyAuthResponse.ok;
+    if (verifyAuthResponse.ok) {
+        const verifyAuthResponseJSON = await verifyAuthResponse.json();
+        storage.setItem<string>("logged", verifyAuthResponseJSON.username, 300)
+        return true;
+    }
+    return false;
 };
-let loggedIn: boolean = storage.getItem<string>("logged") != null || await verifyAuthAJAX()
+let username: string | null = null;
+let loggedIn: boolean = storage.getItem<string>("logged") != null;
 
-if (loggedIn) {
-    storage.setItem<string>("logged", "true", 300)
-    authenticationBtnDiv.classList.add('hidden')
-    loggedInDiv.classList.remove('hidden')
-    getStartedBtn.addEventListener('click',() => {
-        window.location.href = "/explore"
-    })
-} else {
-    authenticationBtnDiv.classList.remove('hidden')
-    loggedInDiv.classList.add('hidden')
-    getStartedBtn.addEventListener('click',() => {
-        window.location.href = "/login"
-    })
+function handleLoginState() {
+    if (loggedIn) {
+        username = storage.getItem<string>("logged");
+        authenticationBtnDiv.classList.add('hidden');
+        loggedInDiv.classList.remove('hidden');
+        getStartedBtn.addEventListener('click', () => {
+            window.location.href = "/explore";
+        });
+        document.querySelectorAll(".profile-btn").forEach((item) => {
+            let anchorTag = item as HTMLAnchorElement;
+            anchorTag.href = `/${username}`;
+        });
+    } else {
+        authenticationBtnDiv.classList.remove('hidden');
+        loggedInDiv.classList.add('hidden');
+        getStartedBtn.addEventListener('click', () => {
+            window.location.href = "/login";
+        });
+    }
 }
+
+if (!loggedIn) {
+    (async () => {
+        loggedIn = await verifyAuthAJAX();
+        handleLoginState();
+    })();
+} else {
+    handleLoginState();
+}
+
+
 
 
 

@@ -26,7 +26,7 @@ public class AuthTokenEncrypter {
         this.ENCRYPTION_KEY = new SecretKeySpec(keyBytes, "AES");
     }
     public String encrypt(AuthToken authToken) throws Exception {
-        String token = authToken.email() + "||" + authToken.refreshDate() + "||" + authToken.expirationDate();
+        String token = authToken.username() + "||" + authToken.refreshDate() + "||" + authToken.expirationDate();
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, ENCRYPTION_KEY);
         byte[] encrypted = cipher.doFinal(token.getBytes(StandardCharsets.UTF_8));

@@ -34,8 +34,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                         boolean expired = authToken.isExpired();
                         if (!expired) {
                             request.setAttribute("authToken", authToken);
-                            String email = authToken.email();
-                            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, null, List.of());
+                            String username = authToken.username();
+                            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, List.of());
                             SecurityContextHolder.getContext()
                                     .setAuthentication(authenticationToken);
                             filterChain.doFilter(request,response);

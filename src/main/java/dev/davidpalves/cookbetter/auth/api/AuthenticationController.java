@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,7 +41,7 @@ public class AuthenticationController {
             if (serviceResult.isSuccess()) {
                 try {
                     log.info("{} User registered successfully", LOG_TITLE);
-                    Cookie authCookie = createAuthCookie(authDTO.getEmail());
+                    Cookie authCookie = createAuthCookie(authDTO.getUsername());
                     response.addCookie(authCookie);
                     return new ResponseEntity<>(HttpStatus.CREATED);
                 } catch (Exception e) {
@@ -67,7 +68,7 @@ public class AuthenticationController {
             ServiceResult<String> serviceResult = authenticationService.loginUser(authDTO);
             if (serviceResult.isSuccess()) {
                 try {
-                    Cookie authCookie = createAuthCookie(authDTO.getEmail());
+                    Cookie authCookie = createAuthCookie(serviceResult.getData());
                     response.addCookie(authCookie);
                     log.info("{} Login successfully", LOG_TITLE);
                     return new ResponseEntity<>(HttpStatus.OK);
@@ -88,14 +89,15 @@ public class AuthenticationController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<String> checkAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ResponseEntity<Map<String,String>> checkAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info("{} Check authentication request received", LOG_TITLE);
         AuthToken authToken = (AuthToken) request.getAttribute("authToken");
-        if (authToken != null && authToken.needsRefresh()) {
-            Cookie authCookie = createAuthCookie(authToken.email());
+        assert authToken != null;
+        if (authToken.needsRefresh()) {
+            Cookie authCookie = createAuthCookie(authToken.username());
             response.addCookie(authCookie);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(Map.of("username",authToken.username()),HttpStatus.OK);
     }
 
     @GetMapping("/logout")
