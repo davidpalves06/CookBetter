@@ -2,7 +2,6 @@ package dev.davidpalves.cookbetter.auth.api;
 
 import dev.davidpalves.cookbetter.auth.configuration.AuthTokenEncrypter;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
-import dev.davidpalves.cookbetter.auth.dto.AuthenticationResponse;
 import dev.davidpalves.cookbetter.auth.service.AuthenticationService;
 import dev.davidpalves.cookbetter.auth.service.PasswordHasher;
 import dev.davidpalves.cookbetter.models.User;
@@ -49,7 +48,7 @@ public class AuthenticationAPITest {
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(mockUser));
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ResponseEntity<AuthenticationResponse> response = authenticationController.loginUser(authenticationDTO,servletResponse);
+        ResponseEntity<String> response = authenticationController.loginUser(authenticationDTO,servletResponse);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Cookie cookie = servletResponse.getCookie("authToken");
         assertNotNull(cookie);
@@ -64,7 +63,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setEmail("test");
         authenticationDTO.setPassword("Password123");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         authenticationDTO.setEmail("test@.org");
@@ -89,7 +88,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setEmail("test@test.com");
         authenticationDTO.setPassword("");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         authenticationDTO.setPassword("password");
@@ -120,7 +119,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setPassword("Password123");
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.empty());
-        ResponseEntity<AuthenticationResponse> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
 
     }
@@ -137,7 +136,7 @@ public class AuthenticationAPITest {
         mockUser.setPassword("WRONGHASHEDPASSWORD");
 
         when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(mockUser));
-        ResponseEntity<AuthenticationResponse> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.loginUser(authenticationDTO,new MockHttpServletResponse());
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
@@ -150,7 +149,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setName("Test Name");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO,servletResponse );
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO,servletResponse );
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         Cookie cookie = servletResponse.getCookie("authToken");
         assertNotNull(cookie);
@@ -167,7 +166,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         authenticationDTO.setEmail("test@.org");
@@ -194,7 +193,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         authenticationDTO.setPassword("password");
@@ -226,7 +225,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName(" Test");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
         authenticationDTO.setName("Test ");
@@ -253,7 +252,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setUsername("Test");
         authenticationDTO.setName("Test Name");
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -267,7 +266,7 @@ public class AuthenticationAPITest {
 
         when(userRepository.existsByEmail("test@test.com")).thenReturn(true);
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
@@ -282,14 +281,14 @@ public class AuthenticationAPITest {
         when(userRepository.existsByEmail("test@test.com")).thenReturn(false);
         when(userRepository.existsByUsername("TestUser")).thenReturn(true);
 
-        ResponseEntity<AuthenticationResponse> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
+        ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO, new MockHttpServletResponse());
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     }
 
     @Test
     public void testLogout() {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-        ResponseEntity<AuthenticationResponse> response = authenticationController.logoutUser(servletResponse);
+        ResponseEntity<String> response = authenticationController.logoutUser(servletResponse);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Cookie cookie = servletResponse.getCookie("authToken");
         assertNotNull(cookie);

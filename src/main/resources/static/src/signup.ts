@@ -1,3 +1,5 @@
+export {};
+
 const signupForm = document.getElementById('signupForm') as HTMLFormElement;
 const usernameInput = document.getElementById('username') as HTMLInputElement;
 const emailInput = document.getElementById('email') as HTMLInputElement;
@@ -19,7 +21,6 @@ interface SignupFormData {
 signupForm.addEventListener('submit', async (event: Event) => {
   event.preventDefault();
   
-  signupBtn.disabled = true
 
   const username: string = usernameInput.value.trim();
   const email: string = emailInput.value.trim();
@@ -78,6 +79,8 @@ signupForm.addEventListener('submit', async (event: Event) => {
   signupBtnText.classList.add('hidden')
   loadingSpinner.classList.remove('hidden')
 
+  signupBtn.disabled = true
+
   const response = await fetch("/auth/signup", {
     method: "POST",
     headers: {
@@ -91,12 +94,12 @@ signupForm.addEventListener('submit', async (event: Event) => {
   } else {
     let errorMessage : string
     if (response.status != 500) {
-      errorMessage = (await response.json()).errorMessage
+      errorMessage = (await response.text())
     } else {
-      errorMessage = "Try again later"
+      errorMessage = "Registration failed. Try again later"
     }
     errorMessageDiv.style.display = 'block'
-    errorMessageDiv.innerText = `Registration failed. ${errorMessage}`
+    errorMessageDiv.innerHTML = errorMessage
     signupBtnText.classList.remove('hidden')
     loadingSpinner.classList.add('hidden')
     signupBtn.disabled = false

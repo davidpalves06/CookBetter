@@ -3,7 +3,6 @@ package dev.davidpalves.cookbetter.auth.api;
 import dev.davidpalves.cookbetter.auth.configuration.AuthToken;
 import dev.davidpalves.cookbetter.auth.configuration.AuthTokenEncrypter;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
-import dev.davidpalves.cookbetter.auth.dto.AuthenticationResponse;
 import dev.davidpalves.cookbetter.auth.service.AuthenticationService;
 import dev.davidpalves.cookbetter.models.ServiceResult;
 import jakarta.servlet.http.Cookie;
@@ -32,7 +31,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthenticationResponse> signupUser(@RequestBody AuthenticationDTO authDTO, HttpServletResponse response) {
+    public ResponseEntity<String> signupUser(@RequestBody AuthenticationDTO authDTO, HttpServletResponse response) {
         log.info("{} Register request received", LOG_TITLE);
         boolean validated = AuthenticationRequestValidator.validateRegisterDTO(authDTO);
         if (validated) {
@@ -53,14 +52,14 @@ public class AuthenticationController {
                 if (serviceResult.getErrorCode() == 2) {
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-                return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.CONFLICT);
+                return new ResponseEntity<>("<p>Registration failed. " + serviceResult.getErrorMessage() + "</p>", HttpStatus.CONFLICT);
             }
         }
         return createBadRequestResponse();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> loginUser(@RequestBody AuthenticationDTO authDTO, HttpServletResponse response) {
+    public ResponseEntity<String> loginUser(@RequestBody AuthenticationDTO authDTO, HttpServletResponse response) {
         log.info("{} Login request received", LOG_TITLE);
         boolean validated = AuthenticationRequestValidator.validateLoginDTO(authDTO);
         if (validated) {
@@ -82,14 +81,14 @@ public class AuthenticationController {
                 if (serviceResult.getErrorCode() == 2) {
                     return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
-                return new ResponseEntity<>(new AuthenticationResponse(serviceResult.getErrorMessage()), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("<p>Login failed. " + serviceResult.getErrorMessage() + "</p>", HttpStatus.UNAUTHORIZED);
             }
         }
         return createBadRequestResponse();
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<AuthenticationResponse> checkAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ResponseEntity<String> checkAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
         log.info("{} Check authentication request received", LOG_TITLE);
         AuthToken authToken = (AuthToken) request.getAttribute("authToken");
         if (authToken != null && authToken.needsRefresh()) {
@@ -100,16 +99,16 @@ public class AuthenticationController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<AuthenticationResponse> logoutUser(HttpServletResponse response) {
+    public ResponseEntity<String> logoutUser(HttpServletResponse response) {
         log.info("{} Logout request received", LOG_TITLE);
         removeAuthCookie(response);
-        return new ResponseEntity<>(new AuthenticationResponse("User logged out successfully!"), HttpStatus.OK);
+        return new ResponseEntity<>("User logged out successfully!", HttpStatus.OK);
     }
 
 
-    private ResponseEntity<AuthenticationResponse> createBadRequestResponse() {
+    private ResponseEntity<String> createBadRequestResponse() {
         log.info("{} Request was not valid.", LOG_TITLE);
-        return new ResponseEntity<>(new AuthenticationResponse("Request Malformed"), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Request Malformed", HttpStatus.BAD_REQUEST);
     }
 
     private Cookie createAuthCookie(String email) throws Exception {

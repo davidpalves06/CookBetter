@@ -1,7 +1,6 @@
 package dev.davidpalves.cookbetter.integration.auth;
 
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
-import dev.davidpalves.cookbetter.auth.dto.AuthenticationResponse;
 import dev.davidpalves.cookbetter.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -35,13 +34,13 @@ public class AuthenticationTestIT {
             registerDTO.setUsername("TestUser");
             registerDTO.setName("Test Name");
 
-            ResponseEntity<AuthenticationResponse> registerResponse = restTemplate.postForEntity("/auth/signup",registerDTO, AuthenticationResponse.class);
+            ResponseEntity<String> registerResponse = restTemplate.postForEntity("/auth/signup",registerDTO, String.class);
             assertEquals(HttpStatus.CREATED,registerResponse.getStatusCode());
 
             AuthenticationDTO loginDTO = new AuthenticationDTO();
             loginDTO.setEmail("test@test.com");
             loginDTO.setPassword("Password123");
-            ResponseEntity<AuthenticationResponse> loginResponse = restTemplate.postForEntity("/auth/login",loginDTO, AuthenticationResponse.class);
+            ResponseEntity<String> loginResponse = restTemplate.postForEntity("/auth/login",loginDTO, String.class);
             assertEquals(HttpStatus.OK,loginResponse.getStatusCode());
 
             String accessToken = loginResponse.getHeaders().get(HttpHeaders.SET_COOKIE).get(0).split(";")[0].substring(10);
@@ -50,7 +49,7 @@ public class AuthenticationTestIT {
             headers.set("Cookie", "authToken="+accessToken);
             headers.set("Content-Type", "application/json");
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<AuthenticationResponse> validateLogin = restTemplate.exchange("/auth/verify", HttpMethod.GET,entity, AuthenticationResponse.class);
+            ResponseEntity<String> validateLogin = restTemplate.exchange("/auth/verify", HttpMethod.GET,entity, String.class);
             assertEquals(HttpStatus.OK,validateLogin.getStatusCode());
         }
 }
