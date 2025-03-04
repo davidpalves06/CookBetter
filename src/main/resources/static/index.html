@@ -6,24 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cook Better</title>
     <link href="/styles.css" rel="stylesheet">
+    <script src="dist/index.js" defer type="module"></script>
 </head>
 
 <body class="bg-gray-100 font-sans">
     <nav class="bg-white shadow p-4">
         <div class="flex justify-between md:justify-around items-center">
             <h1 class="text-2xl font-bold text-orange-600">CookBetter</h1>
-            <div>
+            <div id="authenticationBtnDiv" class="hidden">
                 <a href="/login" class="px-4 py-2 text-orange-600 hover:text-orange-800">
                     Log In
                 </a>
                 <a href="/signup" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">Sign Up</a>
+            </div>
+            <div class="flex flex-row gap-x-10 items-center" id="loggedInDiv">
+                <a href="/explore" class="hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">
+                    Explore
+                </a>
+                <a href="/search" class="hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">Search</a>
+                <div class="hidden relative md:inline-block">
+                    <svg aria-label="profile-icon" width="32" height="32"
+                        class="border-2 rounded-3xl text-orange-400 cursor-pointer" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" id="profileIcon">
+                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+                        <path d="M4 20C4 16.6863 7.13401 14 12 14C16.866 14 20 16.6863 20 20" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+
+                    <div id="profileMenu"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        <ul class="py-2">
+                            <a href="/profile">
+                                <li
+                                    class="px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer">
+                                    Profile</li>
+                            </a>
+                            <li class="px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
+                            </zul>
+                    </div>
+                </div>
+
+                <div class="md:hidden">
+                    <svg id="hamburgerIcon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" class="text-orange-400 cursor-pointer">
+                        <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                </div>
+
+                <div id="hamburgerMenu"
+                    class="hidden fixed top-0 right-0 h-full w-full bg-white z-20 sm:hidden flex-col items-center justify-center transform translate-x-full transition-transform duration-300">
+                    <svg id="closeIcon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="absolute top-4 right-4 text-orange-400 cursor-pointer">
+                        <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <ul class="text-center space-y-6 text-lg h-96 flex flex-col items-center justify-center">
+                        <a href="/explore"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Explore</li></a>
+                        <a href="/search"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Search</li></a>
+                        <a href="/profile"><li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">Profile</li></a>
+                        <li class="text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer logoutBtn">Log Out</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
 
     <section class="max-w-6xl mx-auto my-12 text-center">
         <h2 class="text-4xl font-bold text-gray-800 mb-4">Share Your Culinary Creations</h2>
-        <p class="text-lg text-gray-600 mb-6">Join a community of food lovers, share recipes, and discover new flavors.</p>
+        <p class="text-lg text-gray-600 mb-6">Join a community of food lovers, share recipes, and discover new flavors.
+        </p>
         <button id="getStartedBtn" class="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Get
             Started</button>
     </section>
@@ -54,7 +106,6 @@
         </div>
     </footer>
 
-    <script src="dist/index.js" type="module"></script>
 </body>
 
 </html>
