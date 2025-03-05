@@ -1,3 +1,5 @@
+import { hasUppercaseAndNumber, isLogged, isValidEmail } from "./auth.js";
+
 export {};
 
 const loginForm = document.getElementById('loginForm') as HTMLFormElement;
@@ -7,12 +9,31 @@ const loginBtn = document.getElementById('loginBtn') as HTMLButtonElement;
 const errorMessageDiv = document.getElementById('errorMessage') as HTMLDivElement;
 const loginBtnText = document.getElementById('loginBtnText') as HTMLSpanElement;
 const loadingSpinner = document.getElementById("loadingSpinner") as HTMLElement;
+const currentDomain = window.location.hostname;
 
 
 interface LoginFormData {
   email : string,
   password : string
 }
+
+async function handleAuthenticationState() {
+  let loggedIn: boolean = await isLogged();
+  if (loggedIn) {
+    if (document.referrer) {
+      const referrerDomain = new URL(document.referrer).hostname;
+      if (referrerDomain === currentDomain && window.history.length > 1) {
+        window.history.back();
+      }
+    } else {
+      window.location.href = "/";
+      errorMessageDiv.style.display = 'none'
+    }
+  }
+}
+
+handleAuthenticationState();
+
 
 loginForm.addEventListener('submit', async (event: Event) => {
   event.preventDefault();
@@ -61,8 +82,16 @@ loginForm.addEventListener('submit', async (event: Event) => {
     body: JSON.stringify(loginFormData),
   })
   if (response.ok) {
-    window.location.href = "/";
-    errorMessageDiv.style.display = 'none'
+    
+    if (document.referrer) {
+      const referrerDomain = new URL(document.referrer).hostname;
+      if (referrerDomain === currentDomain && window.history.length > 1) {
+        window.history.back();
+      }
+    } else {
+      window.location.href = "/";
+      errorMessageDiv.style.display = 'none'
+    }
   } else {
     let errorMessage : string
     if (response.status != 500) {
@@ -78,12 +107,3 @@ loginForm.addEventListener('submit', async (event: Event) => {
     return
   }
 });
-
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-function hasUppercaseAndNumber(input: string): boolean {
-  return /(?=.*[A-Z])(?=.*[0-9])/.test(input);
-}

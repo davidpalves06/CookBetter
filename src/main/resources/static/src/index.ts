@@ -1,3 +1,4 @@
+import { isLogged, getAuthUsername } from "./auth.js";
 import { storage } from "./storage.js";
 
 export { };
@@ -7,6 +8,29 @@ const loggedInDiv = document.getElementById('loggedInDiv') as HTMLDivElement;
 const profileIcon = document.getElementById('profileIcon') as HTMLElement;
 const getStartedBtn = document.getElementById('getStartedBtn') as HTMLButtonElement;
 
+async function handleAuthenticationState() {
+    let loggedIn: boolean = await isLogged();
+    if (loggedIn) {
+        let username = getAuthUsername();
+        authenticationBtnDiv.classList.add('hidden');
+        loggedInDiv.classList.remove('hidden');
+        getStartedBtn.addEventListener('click', () => {
+            window.location.href = "/explore";
+        });
+        document.querySelectorAll(".profile-btn").forEach((item) => {
+            let anchorTag = item as HTMLAnchorElement;
+            anchorTag.href = `/${username}`;
+        });
+    } else {
+        authenticationBtnDiv.classList.remove('hidden');
+        loggedInDiv.classList.add('hidden');
+        getStartedBtn.addEventListener('click', () => {
+            window.location.href = "/login";
+        });
+    }
+}
+
+handleAuthenticationState();
 
 profileIcon.addEventListener('click', (event: Event) => {
     const menu = document.getElementById("profileMenu") as HTMLDivElement;
@@ -61,53 +85,6 @@ document.addEventListener("click", (event: Event) => {
         hamburgerMenu.classList.add("hidden");
     }
 });
-
-const verifyAuthAJAX = async () => {
-    const verifyAuthResponse = await fetch("/auth/verify", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    if (verifyAuthResponse.ok) {
-        const verifyAuthResponseJSON = await verifyAuthResponse.json();
-        storage.setItem<string>("logged", verifyAuthResponseJSON.username, 300)
-        return true;
-    }
-    return false;
-};
-let username: string | null = null;
-let loggedIn: boolean = storage.getItem<string>("logged") != null;
-
-function handleLoginState() {
-    if (loggedIn) {
-        username = storage.getItem<string>("logged");
-        authenticationBtnDiv.classList.add('hidden');
-        loggedInDiv.classList.remove('hidden');
-        getStartedBtn.addEventListener('click', () => {
-            window.location.href = "/explore";
-        });
-        document.querySelectorAll(".profile-btn").forEach((item) => {
-            let anchorTag = item as HTMLAnchorElement;
-            anchorTag.href = `/${username}`;
-        });
-    } else {
-        authenticationBtnDiv.classList.remove('hidden');
-        loggedInDiv.classList.add('hidden');
-        getStartedBtn.addEventListener('click', () => {
-            window.location.href = "/login";
-        });
-    }
-}
-
-if (!loggedIn) {
-    (async () => {
-        loggedIn = await verifyAuthAJAX();
-        handleLoginState();
-    })();
-} else {
-    handleLoginState();
-}
 
 
 

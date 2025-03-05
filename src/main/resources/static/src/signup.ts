@@ -1,3 +1,5 @@
+import { hasUppercaseAndNumber, isLogged, isValidEmail } from "./auth.js";
+
 export {};
 
 const signupForm = document.getElementById('signupForm') as HTMLFormElement;
@@ -10,6 +12,7 @@ const errorMessageDiv = document.getElementById('errorMessage') as HTMLDivElemen
 const signupBtn = document.getElementById('signupBtn') as HTMLButtonElement;
 const signupBtnText = document.getElementById('signupBtnText') as HTMLSpanElement;
 const loadingSpinner = document.getElementById("loadingSpinner") as HTMLElement;
+const currentDomain = window.location.hostname;
 
 interface SignupFormData {
   name: string;
@@ -17,6 +20,23 @@ interface SignupFormData {
   username: string;
   password: string;
 }
+
+async function handleAuthenticationState() {
+  let loggedIn: boolean = await isLogged();
+  if (loggedIn) {
+    if (document.referrer) {
+      const referrerDomain = new URL(document.referrer).hostname;
+      if (referrerDomain === currentDomain && window.history.length > 1) {
+        window.history.back();
+      }
+    } else {
+      window.location.href = "/";
+      errorMessageDiv.style.display = 'none'
+    }
+  }
+}
+
+handleAuthenticationState();
 
 signupForm.addEventListener('submit', async (event: Event) => {
   event.preventDefault();
@@ -106,12 +126,3 @@ signupForm.addEventListener('submit', async (event: Event) => {
     return
   }
 });
-
-function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-function hasUppercaseAndNumber(input: string): boolean {
-  return /(?=.*[A-Z])(?=.*[0-9])/.test(input);
-}

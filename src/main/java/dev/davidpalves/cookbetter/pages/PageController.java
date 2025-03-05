@@ -7,16 +7,31 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PageController {
     @GetMapping("/")
     public String index() {
-        return "index.html";
+        return "forward:/index.html";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login.html";
+        return "forward:/login.html";
     }
 
     @GetMapping("/signup")
     public String signup() {
-        return "signup.html";
+        return "forward:/signup.html";
+    }
+
+    @GetMapping("/explore")
+    public String explore() {
+        return "forward:/explore.html";
+    }
+
+    @GetMapping("/search")
+    public String search() {
+        return "forward:/search.html";
+    }
+
+    @GetMapping("/{path:[^\\\\.]+}")
+    public String profile() {
+        return "forward:/profile.html";
     }
 }
