@@ -3,23 +3,23 @@ interface StorageItem<T> {
     expiresAt: number;
 }
 
-class LocalStorageWithTTL {
+class SessionStorageWithTTL {
     setItem<T>(key: string, value: T, ttl: number): void {
         const now = Date.now();
         const item: StorageItem<T> = {
             value,
             expiresAt: now + ttl * 1000,
         };
-        localStorage.setItem(key, JSON.stringify(item));
+        sessionStorage.setItem(key, JSON.stringify(item));
     }
 
     getItem<T>(key: string): T | null {
-        const itemStr = localStorage.getItem(key);
+        const itemStr = sessionStorage.getItem(key);
         if (!itemStr) return null;
 
         const item: StorageItem<T> = JSON.parse(itemStr);
         if (Date.now() > item.expiresAt) {
-            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
             return null;
         }
 
@@ -27,12 +27,12 @@ class LocalStorageWithTTL {
     }
 
     removeItem(key: string): void {
-        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
     }
 
     clear(): void {
-        localStorage.clear();
+        sessionStorage.clear();
     }
 }
 
-export const storage = new LocalStorageWithTTL();
+export const storage = new SessionStorageWithTTL();

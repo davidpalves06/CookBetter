@@ -1,6 +1,6 @@
 import { hasUppercaseAndNumber, isLogged, isValidEmail } from "./auth.js";
 
-export {};
+export { };
 
 const signupForm = document.getElementById('signupForm') as HTMLFormElement;
 const usernameInput = document.getElementById('username') as HTMLInputElement;
@@ -13,6 +13,25 @@ const signupBtn = document.getElementById('signupBtn') as HTMLButtonElement;
 const signupBtnText = document.getElementById('signupBtnText') as HTMLSpanElement;
 const loadingSpinner = document.getElementById("loadingSpinner") as HTMLElement;
 const currentDomain = window.location.hostname;
+const passwordToggleButton = document.getElementById("togglePassword") as HTMLButtonElement;
+
+passwordToggleButton.addEventListener('click', (event : Event) => {
+  event.preventDefault();
+  
+  passwordToggleButton.blur();
+  const eyeIcon = document.getElementById("eyeIcon") as HTMLElement;
+  const eyeSlashIcon = document.getElementById("eyeSlashIcon") as HTMLElement;
+
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    eyeIcon.classList.add('hidden');
+    eyeSlashIcon.classList.remove('hidden');
+  } else {
+    passwordInput.type = 'password';
+    eyeIcon.classList.remove('hidden');
+    eyeSlashIcon.classList.add('hidden');
+  }
+});
 
 interface SignupFormData {
   name: string;
@@ -40,7 +59,7 @@ handleAuthenticationState();
 
 signupForm.addEventListener('submit', async (event: Event) => {
   event.preventDefault();
-  
+
 
   const username: string = usernameInput.value.trim();
   const email: string = emailInput.value.trim();
@@ -112,7 +131,7 @@ signupForm.addEventListener('submit', async (event: Event) => {
     window.location.href = "/";
     errorMessageDiv.style.display = 'none'
   } else {
-    let errorMessage : string
+    let errorMessage: string
     if (response.status != 500) {
       errorMessage = (await response.text())
     } else {

@@ -10,6 +10,26 @@ const errorMessageDiv = document.getElementById('errorMessage') as HTMLDivElemen
 const loginBtnText = document.getElementById('loginBtnText') as HTMLSpanElement;
 const loadingSpinner = document.getElementById("loadingSpinner") as HTMLElement;
 const currentDomain = window.location.hostname;
+const passwordToggleButton = document.getElementById("togglePassword") as HTMLButtonElement;
+
+
+passwordToggleButton.addEventListener('click', (event : Event) => {
+  event.preventDefault();
+  
+  passwordToggleButton.blur();
+  const eyeIcon = document.getElementById("eyeIcon") as HTMLElement;
+  const eyeSlashIcon = document.getElementById("eyeSlashIcon") as HTMLElement;
+
+  if (passwordInput.type === 'password') {
+    passwordInput.type = 'text';
+    eyeIcon.classList.add('hidden');
+    eyeSlashIcon.classList.remove('hidden');
+  } else {
+    passwordInput.type = 'password';
+    eyeIcon.classList.remove('hidden');
+    eyeSlashIcon.classList.add('hidden');
+  }
+});
 
 
 interface LoginFormData {
