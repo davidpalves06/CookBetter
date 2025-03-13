@@ -79,8 +79,21 @@ public class UserRepository {
             throw new SQLException("Connection is not open");
         }
         String sql = "SELECT * FROM users WHERE email = ?";
+        return getUser(email, connection, sql);
+    }
+
+    public Optional<User> findByUsername(String username) throws SQLException {
+        Connection connection = connectionThreadLocal.get();
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Connection is not open");
+        }
+        String sql = "SELECT * FROM users WHERE username = ?";
+        return getUser(username, connection, sql);
+    }
+
+    private Optional<User> getUser(String username, Connection connection, String sql) throws SQLException {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, email);
+            stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     User user = new User();

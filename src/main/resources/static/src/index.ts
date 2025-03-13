@@ -1,5 +1,4 @@
-import { isLogged, getAuthUsername } from "./auth.js";
-import { storage } from "./storage.js";
+import { isLogged, getAuthUsername, logout } from "./auth.js";
 
 export { };
 
@@ -46,15 +45,6 @@ document.addEventListener('click', (event: Event) => {
     }
 })
 
-async function logout() {
-    const logoutResponse = await fetch("/auth/logout", {
-        method: "GET"
-    });
-    if (logoutResponse.ok) {
-        window.location.reload();
-        storage.removeItem("logged")
-    }
-};
 
 document.querySelectorAll(".logoutBtn").forEach((item) => {
     item.addEventListener("click", logout);
@@ -85,6 +75,7 @@ document.addEventListener("click", (event: Event) => {
         hamburgerMenu.classList.add("hidden");
     }
 });
+
 
 
 

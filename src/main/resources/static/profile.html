@@ -1,12 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="/dist/profile.js" defer type="module"></script>
+    <title>User Profile - CookBetter</title>
+    <link href="/styles.css" rel="stylesheet">
+    <script src="dist/profile.js" type="module" defer></script>
 </head>
-<body>
-    <h1 id="profileTitle"></h1>
+
+<body class="font-sans min-h-screen flex flex-col bg-gray-100">
+    <nav class="bg-white shadow-md p-4">
+        <div class="flex justify-between md:justify-around items-center">
+            <h1 class="text-4xl font-bold text-orange-600">CookBetter</h1>
+            <div id="authenticationBtnDiv" class="hidden">
+                <a href="/login" class="text-lg px-4 py-2 text-orange-600 hover:text-orange-800 hover:font-bold">
+                    Log In
+                </a>
+                <a href="/signup"
+                    class="px-4 py-2 text-lg bg-orange-600 text-white rounded hover:bg-orange-700 hover:font-bold">Sign
+                    Up</a>
+            </div>
+            <div class="flex flex-row gap-x-10 items-center" id="loggedInDiv">
+                <a href="/explore"
+                    class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">
+                    Explore
+                </a>
+                <a href="/search"
+                    class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">Search</a>
+                <div class="hidden relative md:inline-block">
+                    <svg aria-label="profile-icon" width="32" height="32"
+                        class="border-2 rounded-3xl text-orange-400 cursor-pointer" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" id="profileIcon">
+                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
+                        <path d="M4 20C4 16.6863 7.13401 14 12 14C16.866 14 20 16.6863 20 20" stroke="currentColor"
+                            stroke-width="2" />
+                    </svg>
+
+                    <div id="profileMenu"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        <ul class="py-2">
+                            <a href="/profile" class="profile-btn">
+                                <li
+                                    class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer">
+                                    Profile</li>
+                            </a>
+                            <li
+                                class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer logoutBtn">
+                                Log Out</li>
+                            </zul>
+                    </div>
+                </div>
+
+                <div class="md:hidden">
+                    <svg id="hamburgerIcon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" class="text-orange-400 cursor-pointer">
+                        <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                </div>
+
+                <div id="hamburgerMenu"
+                    class="hidden fixed top-0 right-0 h-full w-full bg-white z-20 sm:hidden flex-col items-center justify-center transform translate-x-full transition-transform duration-300">
+                    <svg id="closeIcon" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="absolute top-4 right-4 text-orange-400 cursor-pointer">
+                        <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <ul class="text-center space-y-6 text-lg h-96 flex flex-col items-center justify-center">
+                        <a href="/explore">
+                            <li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">
+                                Explore</li>
+                        </a>
+                        <a href="/search">
+                            <li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">
+                                Search</li>
+                        </a>
+                        <a href="/profile" class="profile-btn">
+                            <li class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer">
+                                Profile</li>
+                        </a>
+                        <li
+                            class="text-lg text-orange-400 hover:text-orange-600 hover:font-bold cursor-pointer logoutBtn">
+                            Log Out</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
+        <div id="loadingSpinner" class="flex justify-center items-center h-64">
+            <div class="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <div id="profileContent" class="hidden">
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <div class="flex-shrink-0">
+                    <img src="/user-avatar.jpg" alt="User Avatar"
+                        class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-600 object-cover">
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h2 class="text-3xl font-bold text-gray-800" id="profileName"></h2>
+                    <p class="text-gray-600 mt-1" id="profileUsername"></p>
+                    <p class="text-gray-700 mt-2" id="profileDescription">Passionate home cook sharing delicious recipes
+                        from my kitchen to yours!</p>
+                    <div class="flex justify-center md:justify-start gap-6 mt-4">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-800">25</p>
+                            <p class="text-gray-600">Recipes</p>
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-gray-800">1.2k</p>
+                            <p class="text-gray-600">Followers</p>
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-gray-800">300</p>
+                            <p class="text-gray-600">Following</p>
+                        </div>
+                    </div>
+                    <button class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Edit
+                        Profile</button>
+                </div>
+            </div>
+        </div>
+        <div id="profileError" class="hidden">
+            <h2 class="text-3xl font-bold text-gray-800" id="errorStatus"></h2>
+            <p class="text-gray-600 mt-1" id="errorDescription"></p>
+        </div>
+    </section>
+
+    <section class="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md hidden">
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Recipes</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <img src="/recipe1.jpg" alt="Recipe 1" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Spicy Chicken Tacos</h4>
+                    <p class="text-gray-600 text-sm">A zesty twist on a classic favorite.</p>
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <img src="/recipe2.jpg" alt="Recipe 2" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Creamy Mushroom Pasta</h4>
+                    <p class="text-gray-600 text-sm">Rich and comforting for any night.</p>
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <img src="/recipe3.jpg" alt="Recipe 3" class="w-full h-40 object-cover">
+                <div class="p-4">
+                    <h4 class="text-lg font-semibold text-gray-800">Lemon Blueberry Cake</h4>
+                    <p class="text-gray-600 text-sm">A sweet and tangy dessert delight.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-6 w-full mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p>© 2025 CookBetter. All rights reserved.</p>
+        </div>
+    </footer>
+
 </body>
+
 </html>

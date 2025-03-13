@@ -32,4 +32,14 @@ function hasUppercaseAndNumber(input: string): boolean {
     return /(?=.*[A-Z])(?=.*[0-9])/.test(input);
 }
 
-export { verifyAuthAJAX, isLogged, getAuthUsername, isValidEmail, hasUppercaseAndNumber };
+async function logout() {
+    const logoutResponse = await fetch("/auth/logout", {
+        method: "GET"
+    });
+    if (logoutResponse.ok) {
+        window.location.reload();
+        storage.removeItem("logged")
+    }
+};
+
+export { verifyAuthAJAX, isLogged, getAuthUsername, isValidEmail, hasUppercaseAndNumber, logout };
