@@ -4,8 +4,10 @@ import dev.davidpalves.cookbetter.auth.configuration.AuthTokenEncrypter;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
 import dev.davidpalves.cookbetter.auth.service.AuthenticationService;
 import dev.davidpalves.cookbetter.auth.service.PasswordHasher;
+import dev.davidpalves.cookbetter.models.ServiceResult;
 import dev.davidpalves.cookbetter.models.User;
-import dev.davidpalves.cookbetter.repository.UserRepository;
+import dev.davidpalves.cookbetter.auth.repository.UserRepository;
+import dev.davidpalves.cookbetter.profile.service.ProfileService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,17 +22,19 @@ import java.util.Optional;
 
 import static dev.davidpalves.cookbetter.auth.api.AuthenticationController.AUTH_COOKIE_EXPIRY;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class AuthenticationAPITest {
     private final AuthenticationController authenticationController;
-    private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final AuthTokenEncrypter authTokenEncrypter;
 
     public AuthenticationAPITest() throws NoSuchAlgorithmException, InvalidKeySpecException {
         userRepository = Mockito.mock(UserRepository.class);
-        authenticationService = new AuthenticationService(userRepository);
+        ProfileService profileService = Mockito.mock(ProfileService.class);
+        when(profileService.createProfile(any())).thenReturn(new ServiceResult<>(true,null,null,0));
+        AuthenticationService authenticationService = new AuthenticationService(userRepository, profileService);
         this.authTokenEncrypter = new AuthTokenEncrypter();
         authenticationController = new AuthenticationController(authenticationService,authTokenEncrypter);
     }
@@ -148,6 +152,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setPassword("Password123");
         authenticationDTO.setUsername("TestUser");
         authenticationDTO.setName("Test Name");
+        when(userRepository.save(any())).thenReturn("USERID");
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         ResponseEntity<String> response = authenticationController.signupUser(authenticationDTO,servletResponse );

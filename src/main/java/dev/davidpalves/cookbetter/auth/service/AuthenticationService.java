@@ -3,7 +3,9 @@ package dev.davidpalves.cookbetter.auth.service;
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
 import dev.davidpalves.cookbetter.models.ServiceResult;
 import dev.davidpalves.cookbetter.models.User;
-import dev.davidpalves.cookbetter.repository.UserRepository;
+import dev.davidpalves.cookbetter.auth.repository.UserRepository;
+import dev.davidpalves.cookbetter.profile.dto.ProfileDTO;
+import dev.davidpalves.cookbetter.profile.service.ProfileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,11 @@ public class AuthenticationService {
     private static final String LOG_TITLE = "[AuthenticationService] -";
 
     private final UserRepository userRepository;
+    private final ProfileService profileService;
 
-    public AuthenticationService(UserRepository userRepository) {
+    public AuthenticationService(UserRepository userRepository, ProfileService profileService) {
         this.userRepository = userRepository;
+        this.profileService = profileService;
     }
 
 
@@ -42,7 +46,8 @@ public class AuthenticationService {
                     serviceResult = new ServiceResult<>(false, null, "Username already taken", 1);
                 } else {
                     log.debug("{} Saving user in database", LOG_TITLE);
-                    if (userRepository.save(user) != -1) {
+                    String userId = userRepository.save(user);
+                    if (userId != null && profileService.createProfile(new ProfileDTO(userId, user.getUsername(),user.getName())).isSuccess()) {
                         serviceResult = new ServiceResult<>(true,"User registered.",null,0);
                     } else {
                         serviceResult = new ServiceResult<>(false,"User could not be registered",null,2);
@@ -52,7 +57,8 @@ public class AuthenticationService {
                 log.debug("{} Could not register user because email was already taken", LOG_TITLE);
                 serviceResult = new ServiceResult<>(false,null,"Email already taken",1);
             }
-            userRepository.closeConnection();
+            if (serviceResult.isSuccess()) userRepository.closeConnection();
+            else userRepository.rollbackConnection();
             return serviceResult;
         } catch (SQLException | NoSuchAlgorithmException e) {
             log.error(String.valueOf(e));

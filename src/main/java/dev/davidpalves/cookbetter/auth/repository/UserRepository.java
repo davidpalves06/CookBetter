@@ -1,5 +1,6 @@
-package dev.davidpalves.cookbetter.repository;
+package dev.davidpalves.cookbetter.auth.repository;
 
+import dev.davidpalves.cookbetter.ConnectionProvider;
 import dev.davidpalves.cookbetter.models.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -8,15 +9,14 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.Optional;
 
-@Component
+@Component("UserRepository")
 @Slf4j
 public class UserRepository {
 
-    private final DataSource dataSource;
-    private final ThreadLocal<Connection> connectionThreadLocal = new ThreadLocal<>();
+    private final ConnectionProvider connectionProvider;
 
-    public UserRepository(DataSource dataSource) throws SQLException {
-        this.dataSource = dataSource;
+    public UserRepository(ConnectionProvider connectionProvider) throws SQLException {
+        this.connectionProvider = connectionProvider;
         createUserTableIfNotExists();
     }
 
@@ -29,20 +29,18 @@ public class UserRepository {
                 "password VARCHAR(100) NOT NULL" +
                 ")";
 
-        try (Connection connection = dataSource.getConnection(); Statement stmt = connection.createStatement()) {
+        try (Connection connection = connectionProvider.getConnection(); Statement stmt = connection.createStatement()) {
             log.info("Creating user table if it does not exist");
             stmt.execute(sql);
         }
     }
 
     public void startConnection() throws SQLException {
-        if (connectionThreadLocal.get() == null || connectionThreadLocal.get().isClosed()) {
-            connectionThreadLocal.set(dataSource.getConnection());
-        }
+        connectionProvider.startConnection();
     }
 
     public boolean existsByUsername(String username) throws SQLException {
-        Connection connection = connectionThreadLocal.get();
+        Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
@@ -52,7 +50,7 @@ public class UserRepository {
     }
 
     public boolean existsByEmail(String email) throws SQLException {
-        Connection connection = connectionThreadLocal.get();
+        Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
@@ -74,7 +72,7 @@ public class UserRepository {
     }
 
     public Optional<User> findByEmail(String email) throws SQLException {
-        Connection connection = connectionThreadLocal.get();
+        Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
@@ -83,7 +81,7 @@ public class UserRepository {
     }
 
     public Optional<User> findByUsername(String username) throws SQLException {
-        Connection connection = connectionThreadLocal.get();
+        Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
@@ -110,8 +108,8 @@ public class UserRepository {
         }
     }
 
-    public int save(User user) throws SQLException {
-        Connection connection = connectionThreadLocal.get();
+    public String save(User user) throws SQLException {
+        Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
@@ -123,25 +121,27 @@ public class UserRepository {
             stmt.setString(4, user.getName());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("id");
+                    return rs.getString("id");
                 }
-                return -1;
+                return null;
             }
         }
     }
 
     public void deleteAllUsers() throws SQLException {
-        String sql = "TRUNCATE TABLE users RESTART IDENTITY";
-        try (Connection connection = dataSource.getConnection();Statement stmt = connection.createStatement()) {
+        String sql = "TRUNCATE TABLE users RESTART IDENTITY CASCADE";
+        try (Connection connection = connectionProvider.getConnection();Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
+            connection.commit();
         }
     }
 
     public void closeConnection() throws SQLException {
-        Connection connection = connectionThreadLocal.get();
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
+        connectionProvider.closeConnection();
+    };
+
+    public void rollbackConnection() throws SQLException {
+        connectionProvider.rollbackConnection();
     };
 
 }

@@ -1,7 +1,7 @@
 package dev.davidpalves.cookbetter.integration.auth;
 
 import dev.davidpalves.cookbetter.auth.dto.AuthenticationDTO;
-import dev.davidpalves.cookbetter.repository.UserRepository;
+import dev.davidpalves.cookbetter.auth.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

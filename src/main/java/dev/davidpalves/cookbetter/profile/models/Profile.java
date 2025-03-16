@@ -1,11 +1,12 @@
-package dev.davidpalves.cookbetter.profile.dto;
+package dev.davidpalves.cookbetter.profile.models;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class ProfileDTO {
+public class Profile {
+    private String id;
     private String userId;
     private String username;
     private String name;
@@ -15,9 +16,11 @@ public class ProfileDTO {
     private Integer following;
     private Integer recipes;
 
-    public ProfileDTO(String username, String name, String description, String avatarPhoto, Integer followers, Integer following, Integer recipes) {
-        this.name = name;
+    public Profile(String id, String userId, String username, String name, String description, String avatarPhoto, Integer followers, Integer following, Integer recipes) {
+        this.id = id;
+        this.userId = userId;
         this.username = username;
+        this.name = name;
         this.description = description;
         this.avatarPhoto = avatarPhoto;
         this.followers = followers;
@@ -25,15 +28,14 @@ public class ProfileDTO {
         this.recipes = recipes;
     }
 
-    public ProfileDTO() {}
-    public ProfileDTO(String username, String name) {
-        this.name = name;
-        this.username = username;
-    }
-
-    public ProfileDTO(String userId, String username , String name) {
+    public Profile(String userId, String username, String name) {
         this.userId = userId;
-        this.name = name;
         this.username = username;
+        this.name = name;
+        this.description = "";
+        this.avatarPhoto = null;
+        this.followers = 0;
+        this.following = 0;
+        this.recipes = 0;
     }
 }

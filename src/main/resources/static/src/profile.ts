@@ -78,7 +78,12 @@ document.addEventListener("click", (event: Event) => {
 
 interface ProfileInfo {
 	name: string,
-	username: string
+	username: string,
+	description: string,
+	avatarPhoto?: string,
+	followers: number,
+	following: number,
+	recipes: number,
 }
 
 async function updateProfileInfo() {
@@ -88,11 +93,30 @@ async function updateProfileInfo() {
 
 	if (response.status == 200) {
 		let profileInfo : ProfileInfo = await response.json();
+		console.log(profileInfo);
 		const profileContent = document.getElementById('profileContent') as HTMLDivElement
+		const profileAvatar = document.getElementById('profileAvatar') as HTMLImageElement
+		const defaultAvatar = document.getElementById('defaultAvatar') as HTMLImageElement
 		const profileName = document.getElementById('profileName') as HTMLHeadingElement
 		const profileUsername = document.getElementById('profileUsername') as HTMLParagraphElement
+		const profileDescription = document.getElementById('profileDescription') as HTMLParagraphElement
+		const profileRecipes = document.getElementById('profileRecipes') as HTMLParagraphElement
+		const profileFollowers = document.getElementById('profileFollowers') as HTMLParagraphElement
+		const profileFollowing = document.getElementById('profileFollowing') as HTMLParagraphElement
+		
+		if (profileInfo.avatarPhoto != undefined) {
+			profileAvatar.src = profileInfo.avatarPhoto
+			defaultAvatar.classList.add("hidden")
+			profileAvatar.classList.remove("hidden")
+		} else {
+			defaultAvatar.classList.remove("hidden")
+		}
 		profileName.textContent = profileInfo.name
 		profileUsername.textContent = `@${profileInfo.username}`
+		profileDescription.textContent = `${profileInfo.description}`
+		profileRecipes.textContent = `${profileInfo.recipes}`
+		profileFollowers.textContent = `${profileInfo.followers}`
+		profileFollowing.textContent = `${profileInfo.following}`
 		profileContent.classList.remove('hidden')
 	} else if (response.status == 404) {
 		const profileError = document.getElementById('profileError') as HTMLDivElement
