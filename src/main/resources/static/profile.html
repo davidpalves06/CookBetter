@@ -89,15 +89,17 @@
         </div>
     </nav>
 
-    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md">
+    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md relative">
         <div id="loadingSpinner" class="flex justify-center items-center h-64">
             <div class="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
         <div id="profileContent" class="hidden">
             <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-600 flex items-center justify-center overflow-hidden">
+                <div
+                    class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-600 flex items-center justify-center overflow-hidden">
                     <img id="profileAvatar" src="" alt="User Avatar" class="hidden w-full">
-                    <svg width="90%" height="90%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="defaultAvatar" class="hidden">
+                    <svg width="90%" height="90%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        id="defaultAvatar" class="hidden">
                         <circle cx="12" cy="8" r="4" stroke="#f97316" stroke-width="2" fill="#fed7aa" />
                         <path d="M4 20C4 16.6863 7.13401 14 12 14C16.866 14 20 16.6863 20 20" stroke="#f97316"
                             stroke-width="2" fill="#fed7aa" />
@@ -121,16 +123,56 @@
                             <p class="text-gray-600">Following</p>
                         </div>
                     </div>
-                    <button class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Edit
+                    <button id="editProfileBtn"
+                        class="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 hover:font-bold cursor-pointer hidden">Edit
                         Profile</button>
                 </div>
             </div>
         </div>
+
         <div id="profileError" class="hidden">
             <h2 class="text-3xl font-bold text-gray-800" id="errorStatus"></h2>
             <p class="text-gray-600 mt-1" id="errorDescription"></p>
         </div>
+
+        <div id="editProfileModal" class="fixed inset-0 items-center bg-gray-800/50 justify-center z-50 hidden">
+            <div class="bg-white rounded-lg p-6  w-10/12 max-w-md shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-800">Edit Profile</h3>
+                    <button id="closeModalBtn" class="text-gray-600 hover:text-gray-800 cursor-pointer">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </button>
+                </div>
+                <form id="editProfileForm">
+                    <div class="mb-4">
+                        <label for="editBioArea" class="block text-gray-700 font-semibold mb-2">Profile Bio</label>
+                        <textarea id="editBioArea" name="description" rows="3"
+                            class="min-h-20 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">Passionate home cook sharing delicious recipes from my kitchen to yours!</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="updateAvatar" class="block text-gray-700 font-semibold mb-2">Profile Picture</label>
+                        <input type="text" id="updateAvatar" name="avatarPhoto"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
+                    </div>
+                    <div id="updateProfileErrorMessage"
+                        class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-2 mb-2 text-xs rounded font-sans font-bold">
+                        Error updating profile. Please check your fields and try again.
+                    </div>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" id="cancelModalBtn"
+                            class="px-4 py-2 text-gray-600 hover:text-gray-800 cursor-pointer hover:font-bold">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 hover:font-bold cursor-pointer">Save
+                            Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </section>
+
 
     <section class="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md hidden">
         <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Recipes</h3>

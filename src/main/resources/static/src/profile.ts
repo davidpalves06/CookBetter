@@ -1,18 +1,19 @@
 import { getAuthUsername, isLogged, logout } from "./auth.js";
 
+
 export { };
 
-const profileTitle = document.getElementById('profileTitle') as HTMLHeadingElement;
 const url = new URL(window.location.href);
 
 const pathParts = url.pathname.split('/').filter(part => part !== '');
-const username = pathParts[0] || null;
+const profileUser = pathParts[0] || null;
 
-document.title = `@${username} - CookBetter`
+document.title = `@${profileUser} - CookBetter`
 
 const profileIcon = document.getElementById('profileIcon') as HTMLElement;
 const authenticationBtnDiv = document.getElementById('authenticationBtnDiv') as HTMLDivElement;
 const loggedInDiv = document.getElementById('loggedInDiv') as HTMLDivElement;
+const editProfileBtn = document.getElementById('editProfileBtn') as HTMLButtonElement;
 
 async function handleAuthenticationState() {
 	let loggedIn: boolean = await isLogged();
@@ -23,7 +24,10 @@ async function handleAuthenticationState() {
 		document.querySelectorAll(".profile-btn").forEach((item) => {
 			let anchorTag = item as HTMLAnchorElement;
 			anchorTag.href = `/${username}`;
-		});
+		});  
+		if (username === profileUser) {
+			editProfileBtn.classList.remove('hidden')
+		}
 	} else {
 		authenticationBtnDiv.classList.remove('hidden');
 		loggedInDiv.classList.add('hidden');
@@ -87,15 +91,14 @@ interface ProfileInfo {
 }
 
 async function updateProfileInfo() {
-	const response = await fetch(`/profile/${username}`, {
+	const response = await fetch(`/profile/${profileUser}`, {
 		method: "GET"
 	});
-
+	
 	if (response.status == 200) {
-		let profileInfo : ProfileInfo = await response.json();
-		console.log(profileInfo);
-		const profileContent = document.getElementById('profileContent') as HTMLDivElement
+		let profileInfo: ProfileInfo = await response.json();
 		const profileAvatar = document.getElementById('profileAvatar') as HTMLImageElement
+		const profileContent = document.getElementById('profileContent') as HTMLDivElement
 		const defaultAvatar = document.getElementById('defaultAvatar') as HTMLImageElement
 		const profileName = document.getElementById('profileName') as HTMLHeadingElement
 		const profileUsername = document.getElementById('profileUsername') as HTMLParagraphElement
@@ -103,9 +106,19 @@ async function updateProfileInfo() {
 		const profileRecipes = document.getElementById('profileRecipes') as HTMLParagraphElement
 		const profileFollowers = document.getElementById('profileFollowers') as HTMLParagraphElement
 		const profileFollowing = document.getElementById('profileFollowing') as HTMLParagraphElement
+		const editBioArea = document.getElementById('editBioArea') as HTMLTextAreaElement;
+		const updateAvatar = document.getElementById('updateAvatar') as HTMLInputElement;
 		
+		console.log(profileInfo);
+		
+		profileAvatar.addEventListener('error',() => {
+			defaultAvatar.classList.remove("hidden")
+			profileAvatar.classList.add("hidden")
+		})
+
 		if (profileInfo.avatarPhoto != undefined) {
 			profileAvatar.src = profileInfo.avatarPhoto
+			updateAvatar.value = profileAvatar.src;
 			defaultAvatar.classList.add("hidden")
 			profileAvatar.classList.remove("hidden")
 		} else {
@@ -114,6 +127,7 @@ async function updateProfileInfo() {
 		profileName.textContent = profileInfo.name
 		profileUsername.textContent = `@${profileInfo.username}`
 		profileDescription.textContent = `${profileInfo.description}`
+		editBioArea.value = profileDescription.textContent
 		profileRecipes.textContent = `${profileInfo.recipes}`
 		profileFollowers.textContent = `${profileInfo.followers}`
 		profileFollowing.textContent = `${profileInfo.following}`
@@ -123,8 +137,8 @@ async function updateProfileInfo() {
 		const errorStatus = document.getElementById('errorStatus') as HTMLHeadingElement
 		const errorDescription = document.getElementById('errorDescription') as HTMLParagraphElement
 
-		errorStatus.textContent = `@${username} not found`
-		errorDescription.textContent = `User ${username} was not found. Please review the username and try again.`
+		errorStatus.textContent = `@${profileUser} not found`
+		errorDescription.textContent = `User ${profileUser} was not found. Please review the username and try again.`
 		profileError.classList.remove('hidden');
 	}
 	else {
@@ -141,3 +155,48 @@ async function updateProfileInfo() {
 }
 
 updateProfileInfo()
+
+const editProfileModal = document.getElementById('editProfileModal') as HTMLDivElement;
+const closeModalBtn = document.getElementById('closeModalBtn') as HTMLButtonElement;
+const cancelModalBtn = document.getElementById('cancelModalBtn') as HTMLButtonElement;
+const editProfileForm = document.getElementById('editProfileForm') as HTMLFormElement;
+
+editProfileBtn.addEventListener('click', () => {
+	editProfileModal.classList.remove('hidden');
+	editProfileModal.classList.add('flex');
+});
+
+cancelModalBtn.addEventListener('click', () => {
+	editProfileModal.classList.remove('flex');
+	editProfileModal.classList.add('hidden');
+	
+});
+
+closeModalBtn.addEventListener('click', () => {
+	editProfileModal.classList.remove('flex');
+	editProfileModal.classList.add('hidden');
+	
+});
+
+editProfileForm.addEventListener('submit',(e:Event) => {
+	e.preventDefault();
+	
+	let errorMessage = document.getElementById('updateProfileErrorMessage') as HTMLDivElement;
+
+	const formData = new FormData(editProfileForm);
+	console.log(formData);
+	
+    fetch(`/profile/${profileUser}`, {
+        method: 'PUT',
+        body: formData
+    })
+    .then(response => {
+		if (response.ok) {
+			window.location.reload();
+		} else {
+			errorMessage.classList.remove('hidden');
+			setTimeout(() => errorMessage.classList.add('hidden'),5000)
+		}
+	})
+    .catch(error => console.error('Error updating profile:', error));
+});

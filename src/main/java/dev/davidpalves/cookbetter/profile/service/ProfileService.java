@@ -1,7 +1,6 @@
 package dev.davidpalves.cookbetter.profile.service;
 
 import dev.davidpalves.cookbetter.models.ServiceResult;
-import dev.davidpalves.cookbetter.models.User;
 import dev.davidpalves.cookbetter.profile.dto.ProfileDTO;
 import dev.davidpalves.cookbetter.profile.models.Profile;
 import dev.davidpalves.cookbetter.profile.repository.ProfileRepository;
@@ -58,6 +57,39 @@ public class ProfileService {
                         profile.getFollowing(), profile.getRecipes());
                 log.debug("{} Profile found {}", LOG_TITLE, profileDTO);
                 serviceResult = new ServiceResult<>(true, profileDTO, null, 0);
+            } else {
+                log.debug("{} Profile not found", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Profile Not found",1);
+            }
+            profileRepository.closeConnection();
+            return serviceResult;
+        } catch (SQLException e) {
+            log.error(String.valueOf(e));
+            return new ServiceResult<>(false,null,"Internal Error",2);
+        }
+    }
+
+    public ServiceResult<ProfileDTO> updateProfileByUsername(String username, ProfileDTO profileDTO) {
+        log.debug("{} Update profile by username {}", LOG_TITLE,username);
+        ServiceResult<ProfileDTO> serviceResult;
+        try {
+            profileRepository.startConnection();
+            Optional<Profile> optionalProfile = profileRepository.findByUsername(username);
+            if (optionalProfile.isPresent()) {
+                Profile profile = optionalProfile.get();
+                if (profileDTO.getDescription() != null && !profileDTO.getDescription().equals(profile.getDescription())) {
+                    profile.setDescription(profileDTO.getDescription());
+                }
+                if (profileDTO.getAvatarPhoto() != null && !profileDTO.getAvatarPhoto().equals(profile.getAvatarPhoto())) {
+                    profile.setAvatarPhoto(profileDTO.getAvatarPhoto());
+                }
+                if (profileRepository.save(profile) != null) {
+                    log.debug("{} Profile updated {}", LOG_TITLE, profileDTO);
+                    serviceResult = new ServiceResult<>(true, profileDTO, null, 0);
+                } else {
+                    log.debug("{} Error updating profile", LOG_TITLE);
+                    serviceResult = new ServiceResult<>(false,null,"Internal Error",2);
+                }
             } else {
                 log.debug("{} Profile not found", LOG_TITLE);
                 serviceResult = new ServiceResult<>(false,null,"Profile Not found",1);
