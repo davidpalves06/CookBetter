@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -13,12 +12,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
-    private static final String[] PRIVATE_PATHS = {"/auth/verify","/auth/logout"};
-    private static final String[] PUT_PRIVATE_PATHS = {"/profile/*"};
+    private static final String[] PRIVATE_PATHS = {"/api/auth/verify","/api/auth/logout","/api/recipes","/api/recipes/user"};
+    private static final String[] MODIFICATION_PATHS = {"/api/profile/*"};
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final AuthTokenEncrypter authTokenEncrypter;
 
@@ -36,8 +34,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                         AuthToken authToken = authTokenEncrypter.decrypt(token);
                         boolean expired = authToken.isExpired();
                         if (!expired) {
-                            request.setAttribute("authToken", authToken);
                             String username = authToken.username();
+                            String userId = authToken.userId();
+                            request.setAttribute("authToken", authToken);
+                            request.setAttribute("userId", userId);
                             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, List.of());
                             SecurityContextHolder.getContext()
                                     .setAuthentication(authenticationToken);
@@ -57,8 +57,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestPath = request.getRequestURI();
-        if (Objects.equals(request.getMethod(), "PUT") &&
-                Arrays.stream(PUT_PRIVATE_PATHS).anyMatch(privatePath -> pathMatcher.match(privatePath, request.getRequestURI()))) {
+        if ((request.getMethod().equals("PUT") || request.getMethod().equals("POST")) &&
+                Arrays.stream(MODIFICATION_PATHS).anyMatch(privatePath -> pathMatcher.match(privatePath, request.getRequestURI()))) {
             return false;
         }
         return Arrays.stream(PRIVATE_PATHS).noneMatch(privatePath -> pathMatcher.match(privatePath, requestPath));

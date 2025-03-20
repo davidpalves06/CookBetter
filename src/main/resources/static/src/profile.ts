@@ -91,7 +91,7 @@ interface ProfileInfo {
 }
 
 async function updateProfileInfo() {
-	const response = await fetch(`/profile/${profileUser}`, {
+	const response = await fetch(`/api/profile/${profileUser}`, {
 		method: "GET"
 	});
 	
@@ -186,7 +186,7 @@ editProfileForm.addEventListener('submit',(e:Event) => {
 	const formData = new FormData(editProfileForm);
 	console.log(formData);
 	
-    fetch(`/profile/${profileUser}`, {
+    fetch(`/api/profile/${profileUser}`, {
         method: 'PUT',
         body: formData
     })

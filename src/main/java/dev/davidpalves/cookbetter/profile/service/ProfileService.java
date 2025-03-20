@@ -52,7 +52,7 @@ public class ProfileService {
             Optional<Profile> optionalProfile = profileRepository.findByUsername(username);
             if (optionalProfile.isPresent()) {
                 Profile profile = optionalProfile.get();
-                ProfileDTO profileDTO = new ProfileDTO(profile.getUsername(),profile.getName(),
+                ProfileDTO profileDTO = new ProfileDTO(profile.getUserId(),profile.getUsername(),profile.getName(),
                         profile.getDescription(), profile.getAvatarPhoto(), profile.getFollowers(),
                         profile.getFollowing(), profile.getRecipes());
                 log.debug("{} Profile found {}", LOG_TITLE, profileDTO);
@@ -98,6 +98,37 @@ public class ProfileService {
             return serviceResult;
         } catch (SQLException e) {
             log.error(String.valueOf(e));
+            return new ServiceResult<>(false,null,"Internal Error",2);
+        }
+    }
+
+    public ServiceResult<Integer> addRecipeToProfile(String userId) {
+        log.debug("{} Update recipe count in profile  {}", LOG_TITLE,userId);
+        ServiceResult<Integer> serviceResult;
+        try {
+            profileRepository.startConnection();
+            Optional<Profile> optionalProfile = profileRepository.findByUserID(userId);
+            if (optionalProfile.isPresent()) {
+                Profile profile = optionalProfile.get();
+                profile.setRecipes(profile.getRecipes() + 1);
+                if (profileRepository.update(profile)) {
+                    log.debug("{} Number of recipes updated to {}", LOG_TITLE,profile.getRecipes());
+                    serviceResult = new ServiceResult<>(true, profile.getRecipes(), null, 0);
+                    profileRepository.closeConnection();
+                } else {
+                    log.debug("{} Error updating profile", LOG_TITLE);
+                    serviceResult = new ServiceResult<>(false,null,"Internal Error",2);
+                    profileRepository.rollbackConnection();
+                }
+            } else {
+                log.debug("{} Profile not found", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Profile Not found",1);
+                profileRepository.rollbackConnection();
+            }
+            return serviceResult;
+        } catch (SQLException e) {
+            log.error(String.valueOf(e));
+            profileRepository.rollbackConnection();
             return new ServiceResult<>(false,null,"Internal Error",2);
         }
     }

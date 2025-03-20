@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -48,7 +49,7 @@ public class AuthenticationService {
                     log.debug("{} Saving user in database", LOG_TITLE);
                     String userId = userRepository.save(user);
                     if (userId != null && profileService.createProfile(new ProfileDTO(userId, user.getUsername(),user.getName())).isSuccess()) {
-                        serviceResult = new ServiceResult<>(true,"User registered.",null,0);
+                        serviceResult = new ServiceResult<>(true,userId,null,0);
                     } else {
                         serviceResult = new ServiceResult<>(false,"User could not be registered",null,2);
                     }
@@ -66,7 +67,7 @@ public class AuthenticationService {
         }
     }
 
-    public ServiceResult<String> loginUser(AuthenticationDTO userDTO) {
+    public ServiceResult<Map.Entry<String,String>> loginUser(AuthenticationDTO userDTO) {
         log.debug("{} Checking if user exists", LOG_TITLE);
         try {
             userRepository.startConnection();
@@ -77,7 +78,8 @@ public class AuthenticationService {
                 User user = userOptional.get();
                 if (PasswordHasher.matches(userDTO.getPassword(), user.getPassword())) {
                     log.debug("{} Password matches", LOG_TITLE);
-                    return new ServiceResult<>(true,user.getUsername(),null,0);
+                    Map.Entry<String, String> result = Map.entry(user.getUsername(), user.getId());
+                    return new ServiceResult<>(true,result,null,0);
                 }
                 else {
                     log.debug("{} Password does not match", LOG_TITLE);

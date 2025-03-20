@@ -1,7 +1,7 @@
 import { storage } from "./storage.js";
 
 const verifyAuthAJAX = async () => {
-    const verifyAuthResponse = await fetch("/auth/verify", {
+    const verifyAuthResponse = await fetch("/api/auth/verify", {
         method: "GET",
         headers: {
             "Content-Type": "application/json"
@@ -33,7 +33,7 @@ function hasUppercaseAndNumber(input: string): boolean {
 }
 
 async function logout() {
-    const logoutResponse = await fetch("/auth/logout", {
+    const logoutResponse = await fetch("/api/auth/logout", {
         method: "GET"
     });
     if (logoutResponse.ok) {

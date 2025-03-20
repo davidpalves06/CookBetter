@@ -18,7 +18,7 @@ public class AuthTokenTest {
 
     @Test
     public void testValidAuthToken() throws Exception {
-        AuthToken authToken = new AuthToken("test@gmail.com",LocalDateTime.now().plusDays(1) ,LocalDateTime.now().plusDays(1));
+        AuthToken authToken = new AuthToken("test@gmail.com","userId",LocalDateTime.now().plusDays(1) ,LocalDateTime.now().plusDays(1));
         String encrypted = authTokenEncrypter.encrypt(authToken);
 
         AuthToken decryptedToken = authTokenEncrypter.decrypt(encrypted);
@@ -28,7 +28,7 @@ public class AuthTokenTest {
 
     @Test
     public void testExpiredAuthToken() throws Exception {
-        AuthToken authToken = new AuthToken("test@gmail.com",LocalDateTime.now().plusDays(1), LocalDateTime.now().minusDays(1));
+        AuthToken authToken = new AuthToken("test@gmail.com","userId",LocalDateTime.now().plusDays(1), LocalDateTime.now().minusDays(1));
         String encrypted = authTokenEncrypter.encrypt(authToken);
 
         AuthToken decryptedToken = authTokenEncrypter.decrypt(encrypted);
@@ -38,7 +38,7 @@ public class AuthTokenTest {
 
     @Test
     public void testRefreshAuthToken() throws Exception {
-        AuthToken authToken = new AuthToken("test@gmail.com",LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusDays(1));
+        AuthToken authToken = new AuthToken("test@gmail.com","userId",LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusDays(1));
         String encrypted = authTokenEncrypter.encrypt(authToken);
 
         AuthToken decryptedToken = authTokenEncrypter.decrypt(encrypted);

@@ -47,6 +47,7 @@ public class AuthenticationAPITest {
         authenticationDTO.setPassword("Password123");
 
         User mockUser = new User();
+        mockUser.setId("userId");
         mockUser.setEmail("test@test.com");
         mockUser.setUsername("TestUser");
         mockUser.setPassword(PasswordHasher.hash("Password123"));
@@ -59,6 +60,7 @@ public class AuthenticationAPITest {
         assertNotNull(cookie);
         assertEquals("authToken",cookie.getName());
         assertEquals("TestUser", this.authTokenEncrypter.decrypt(cookie.getValue()).username());
+        assertEquals("userId", this.authTokenEncrypter.decrypt(cookie.getValue()).userId());
         assertEquals(AUTH_COOKIE_EXPIRY,cookie.getMaxAge());
     }
 

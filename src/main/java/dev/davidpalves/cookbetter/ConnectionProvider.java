@@ -41,11 +41,15 @@ public class ConnectionProvider {
         }
     };
 
-    public void rollbackConnection() throws SQLException {
+    public void rollbackConnection() {
         Connection connection = connectionThreadLocal.get();
-        if (connection != null && !connection.isClosed()) {
-            connectionThreadLocal.get().rollback();
-            connection.close();
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connectionThreadLocal.get().rollback();
+                connection.close();
+            }
+        } catch (SQLException e) {
+            log.error("Could not rollback connection", e);
         }
     };
 }

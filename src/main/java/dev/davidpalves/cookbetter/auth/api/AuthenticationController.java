@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @Slf4j
 public class AuthenticationController {
     private static final String LOG_TITLE = "[AuthenticationController] -";
@@ -41,7 +41,7 @@ public class AuthenticationController {
             if (serviceResult.isSuccess()) {
                 try {
                     log.info("{} User registered successfully", LOG_TITLE);
-                    Cookie authCookie = createAuthCookie(authDTO.getUsername());
+                    Cookie authCookie = createAuthCookie(authDTO.getUsername(),serviceResult.getData());
                     response.addCookie(authCookie);
                     return new ResponseEntity<>(HttpStatus.CREATED);
                 } catch (Exception e) {
@@ -65,10 +65,11 @@ public class AuthenticationController {
         boolean validated = AuthenticationRequestValidator.validateLoginDTO(authDTO);
         if (validated) {
             log.debug("{} Request is valid, proceeding to logging in the user", LOG_TITLE);
-            ServiceResult<String> serviceResult = authenticationService.loginUser(authDTO);
+            ServiceResult<Map.Entry<String,String>> serviceResult = authenticationService.loginUser(authDTO);
             if (serviceResult.isSuccess()) {
                 try {
-                    Cookie authCookie = createAuthCookie(serviceResult.getData());
+                    Map.Entry<String, String> usernameIdPair = serviceResult.getData();
+                    Cookie authCookie = createAuthCookie(usernameIdPair.getKey(), usernameIdPair.getValue());
                     response.addCookie(authCookie);
                     log.info("{} Login successfully", LOG_TITLE);
                     return new ResponseEntity<>(HttpStatus.OK);
@@ -94,7 +95,7 @@ public class AuthenticationController {
         AuthToken authToken = (AuthToken) request.getAttribute("authToken");
         assert authToken != null;
         if (authToken.needsRefresh()) {
-            Cookie authCookie = createAuthCookie(authToken.username());
+            Cookie authCookie = createAuthCookie(authToken.username(), authToken.userId());
             response.addCookie(authCookie);
         }
         return new ResponseEntity<>(Map.of("username",authToken.username()),HttpStatus.OK);
@@ -113,8 +114,8 @@ public class AuthenticationController {
         return new ResponseEntity<>("Request Malformed", HttpStatus.BAD_REQUEST);
     }
 
-    private Cookie createAuthCookie(String email) throws Exception {
-        AuthToken authToken = new AuthToken(email, LocalDateTime.now().plusSeconds(AUTH_COOKIE_REFRESH), LocalDateTime.now().plusSeconds(AUTH_COOKIE_EXPIRY));
+    private Cookie createAuthCookie(String username, String userId) throws Exception {
+        AuthToken authToken = new AuthToken(username, userId, LocalDateTime.now().plusSeconds(AUTH_COOKIE_REFRESH), LocalDateTime.now().plusSeconds(AUTH_COOKIE_EXPIRY));
         Cookie authCookie = new Cookie("authToken", authTokenEncrypter.encrypt(authToken));
         authCookie.setHttpOnly(true);
         //TODO: HANDLE ONLY HTTPS TRAFFIC

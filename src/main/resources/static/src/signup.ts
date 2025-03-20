@@ -120,7 +120,7 @@ signupForm.addEventListener('submit', async (event: Event) => {
 
   signupBtn.disabled = true
 
-  const response = await fetch("/auth/signup", {
+  const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

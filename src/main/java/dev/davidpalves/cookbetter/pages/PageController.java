@@ -34,4 +34,9 @@ public class PageController {
     public String profile() {
         return "forward:/profile.html";
     }
+
+    @GetMapping("/recipes")
+    public String recipes() {
+        return "forward:/recipes.html";
+    }
 }

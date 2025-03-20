@@ -26,7 +26,7 @@ public class AuthTokenEncrypter {
         this.ENCRYPTION_KEY = new SecretKeySpec(keyBytes, "AES");
     }
     public String encrypt(AuthToken authToken) throws Exception {
-        String token = authToken.username() + "||" + authToken.refreshDate() + "||" + authToken.expirationDate();
+        String token = authToken.username() + "||" + authToken.userId() + "||" + authToken.refreshDate() + "||" + authToken.expirationDate();
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, ENCRYPTION_KEY);
         byte[] encrypted = cipher.doFinal(token.getBytes(StandardCharsets.UTF_8));
@@ -39,11 +39,11 @@ public class AuthTokenEncrypter {
         byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedToken));
         String token = new String(decrypted, StandardCharsets.UTF_8);
         String[] split = token.split("\\|\\|");
-        if (split.length != 3) {
+        if (split.length != 4) {
             throw new Exception("Invalid token");
         }
         else {
-            return new AuthToken(split[0], LocalDateTime.parse(split[1]),LocalDateTime.parse(split[2]));
+            return new AuthToken(split[0], split[1], LocalDateTime.parse(split[2]),LocalDateTime.parse(split[3]));
         }
     }
 }

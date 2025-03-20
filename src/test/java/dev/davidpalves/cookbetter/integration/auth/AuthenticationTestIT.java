@@ -34,13 +34,13 @@ public class AuthenticationTestIT {
             registerDTO.setUsername("TestUser");
             registerDTO.setName("Test Name");
 
-            ResponseEntity<String> registerResponse = restTemplate.postForEntity("/auth/signup",registerDTO, String.class);
+            ResponseEntity<String> registerResponse = restTemplate.postForEntity("/api/auth/signup",registerDTO, String.class);
             assertEquals(HttpStatus.CREATED,registerResponse.getStatusCode());
 
             AuthenticationDTO loginDTO = new AuthenticationDTO();
             loginDTO.setEmail("test@test.com");
             loginDTO.setPassword("Password123");
-            ResponseEntity<String> loginResponse = restTemplate.postForEntity("/auth/login",loginDTO, String.class);
+            ResponseEntity<String> loginResponse = restTemplate.postForEntity("/api/auth/login",loginDTO, String.class);
             assertEquals(HttpStatus.OK,loginResponse.getStatusCode());
 
             String accessToken = loginResponse.getHeaders().get(HttpHeaders.SET_COOKIE).get(0).split(";")[0].substring(10);
@@ -49,7 +49,7 @@ public class AuthenticationTestIT {
             headers.set("Cookie", "authToken="+accessToken);
             headers.set("Content-Type", "application/json");
             HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<String> validateLogin = restTemplate.exchange("/auth/verify", HttpMethod.GET,entity, String.class);
+            ResponseEntity<String> validateLogin = restTemplate.exchange("/api/auth/verify", HttpMethod.GET,entity, String.class);
             assertEquals(HttpStatus.OK,validateLogin.getStatusCode());
         }
 }

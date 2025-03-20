@@ -32,6 +32,7 @@ public class UserRepository {
         try (Connection connection = connectionProvider.getConnection(); Statement stmt = connection.createStatement()) {
             log.info("Creating user table if it does not exist");
             stmt.execute(sql);
+            connection.commit();
         }
     }
 

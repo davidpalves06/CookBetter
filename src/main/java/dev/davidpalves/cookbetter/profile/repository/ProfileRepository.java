@@ -38,6 +38,7 @@ public class ProfileRepository {
         try (Connection connection = connectionProvider.getConnection(); Statement stmt = connection.createStatement()) {
             log.info("Creating profile table if it does not exist");
             stmt.execute(sql);
+            connection.commit();
         }
     }
 
@@ -73,11 +74,7 @@ public class ProfileRepository {
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
-        String sql = "SELECT * FROM profiles WHERE username = ?";
-        return getProfile(username, connection, sql);
-    }
-
-    private Optional<Profile> getProfile(String username, Connection connection, String sql) throws SQLException {
+        String sql = "SELECT * FROM profiles WHERE username = ? LIMIT 1";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, username);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -85,13 +82,12 @@ public class ProfileRepository {
                     String id = rs.getString("id");
                     String userId = rs.getString("userid");
                     String name = rs.getString("name");
-                    String profileUsername = rs.getString("username");
                     String description = rs.getString("description");
                     String avatarPhoto = rs.getString("avatarPhoto");
                     int followers = rs.getInt("followers");
                     int following = rs.getInt("following");
                     int recipes = rs.getInt("recipes");
-                    Profile profile = new Profile(id,userId,profileUsername,name,description,avatarPhoto,followers,following,recipes);
+                    Profile profile = new Profile(id,userId,username,name,description,avatarPhoto,followers,following,recipes);
                     return Optional.of(profile);
                 } else {
                     return Optional.empty();
@@ -100,20 +96,14 @@ public class ProfileRepository {
         }
     }
 
+
     public String save(Profile profile) throws SQLException {
         Connection connection = connectionProvider.getConnection();
         if (connection == null || connection.isClosed()) {
             throw new SQLException("Connection is not open");
         }
         String sql = """
-                INSERT INTO profiles (userId, name, username, description, avatarPhoto, followers, following, recipes) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (username)
-                DO UPDATE SET
-                    name = EXCLUDED.name,
-                    description = EXCLUDED.description,
-                    avatarPhoto = EXCLUDED.avatarPhoto,
-                    followers = EXCLUDED.followers,
-                    following = EXCLUDED.following,
-                    recipes = EXCLUDED.recipes
+                INSERT INTO profiles (userId, name, username, description, avatarPhoto, followers, following, recipes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 RETURNING id;
 """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -138,8 +128,62 @@ public class ProfileRepository {
         connectionProvider.closeConnection();
     }
 
-    public void rollbackConnection() throws SQLException {
+    public void rollbackConnection() {
         connectionProvider.rollbackConnection();
     }
 
+    public Optional<Profile> findByUserID(String userId) throws SQLException {
+        Connection connection = connectionProvider.getConnection();
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Connection is not open");
+        }
+        String sql = "SELECT * FROM profiles WHERE userid = ? LIMIT 1";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, Integer.parseInt(userId));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String id = rs.getString("id");
+                    String name = rs.getString("name");
+                    String profileUsername = rs.getString("username");
+                    String description = rs.getString("description");
+                    String avatarPhoto = rs.getString("avatarPhoto");
+                    int followers = rs.getInt("followers");
+                    int following = rs.getInt("following");
+                    int recipes = rs.getInt("recipes");
+                    Profile profile = new Profile(id,userId,profileUsername,name,description,avatarPhoto,followers,following,recipes);
+                    return Optional.of(profile);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    public boolean update(Profile profile) throws SQLException {
+        Connection connection = connectionProvider.getConnection();
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Connection is not open");
+        }
+        String sql = """
+                UPDATE profiles
+                SET description = ?,
+                    avatarPhoto = ?,
+                    followers = ?,
+                    following = ?,
+                    recipes = ?
+                WHERE id = ?;
+""";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, profile.getDescription());
+            stmt.setString(2, profile.getAvatarPhoto());
+            stmt.setInt(3, profile.getFollowers());
+            stmt.setInt(4, profile.getFollowing());
+            stmt.setInt(5, profile.getRecipes());
+            stmt.setInt(6, Integer.parseInt(profile.getId()));
+            if (stmt.executeUpdate() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

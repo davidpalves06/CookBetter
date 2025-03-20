@@ -3,8 +3,6 @@ package dev.davidpalves.cookbetter.profile.api;
 import dev.davidpalves.cookbetter.models.ServiceResult;
 import dev.davidpalves.cookbetter.profile.dto.ProfileDTO;
 import dev.davidpalves.cookbetter.profile.service.ProfileService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/profile")
+@RequestMapping("/api/profile")
 @Slf4j
 public class ProfileController {
     private static final String LOG_TITLE = "[ProfileController] -";
@@ -25,7 +23,7 @@ public class ProfileController {
 
 
     @GetMapping("/{username}")
-    public ResponseEntity<ProfileDTO> getProfileByUsername(HttpServletResponse response, @PathVariable String username) {
+    public ResponseEntity<ProfileDTO> getProfileByUsername(@PathVariable String username) {
         log.info("{} Get profile by username request received", LOG_TITLE);
         ServiceResult<ProfileDTO> serviceResult = profileService.getProfileByUsername(username);
         if (serviceResult.isSuccess()) {
