@@ -150,6 +150,7 @@ const createRecipeForm = document.getElementById('createRecipeForm') as HTMLForm
 
 createRecipeBtn.addEventListener('click', () => {
     createRecipeModal.classList.remove('hidden');
+    createRecipeModal.classList.add('flex');
 });
 
 closeCreateModalBtn.addEventListener('click', () => {

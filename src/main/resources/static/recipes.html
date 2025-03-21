@@ -85,7 +85,8 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-3xl font-bold text-gray-800">Your Recipes</h2>
             <button id="createRecipeBtn"
-                class="text-sm md:text-base text-center text-nowrap px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer hover:font-bold">Create New Recipe</button>
+                class="text-sm md:text-base text-center text-nowrap px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer hover:font-bold">Create
+                New Recipe</button>
         </div>
 
         <div id="recipesList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,69 +97,87 @@
         </div>
     </section>
 
-    <div id="createRecipeModal" class="fixed inset-0 bg-gray-800/50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-            <div class="flex justify-between items-center mb-4">
+    <div id="createRecipeModal" class="fixed inset-0 bg-gray-800/50 items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-lg px-2 w-full max-w-lg shadow-lg max-h-[75vh] flex flex-col">
+            <div class="w-full flex justify-between py-3 px-3 items-center mb-4 sticky top-0 bg-white z-10">
                 <h3 class="text-2xl font-bold text-gray-800">Create Recipe</h3>
-                <button id="closeCreateModalBtn" class="text-gray-600 hover:text-gray-800">
+                <button id="closeCreateModalBtn" class="text-gray-600 hover:text-gray-800 cursor-pointer">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
-            <form id="createRecipeForm">
-                <div class="mb-4">
-                    <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
-                    <input type="text" id="title" name="title" required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
-                </div>
-                <div class="mb-4">
-                    <label for="description" class="block text-gray-700 font-semibold mb-2">Description</label>
-                    <textarea id="description" name="description" rows="3"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Ingredients</label>
-                    <div id="ingredientsList" class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="ingredients" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600" placeholder="e.g., 1 lb chicken">
-                            <button type="button" class="remove-ingredient px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
-                        </div>
+            <div class="flex-1 px-3 overflow-y-auto scrollable-content">
+                <form id="createRecipeForm">
+                    <div class="mb-4">
+                        <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
+                        <input type="text" id="title" name="title" required
+                            class="w-11/12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
                     </div>
-                    <button type="button" id="addIngredientBtn" class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Add Ingredient</button>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Instructions</label>
-                    <div id="instructionsList" class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="instructions" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600" placeholder="e.g., Preheat oven to 350°F">
-                            <button type="button" class="remove-instruction px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
-                        </div>
+                    <div class="mb-4">
+                        <label for="description" class="block text-gray-700 font-semibold mb-2">Description</label>
+                        <textarea id="description" name="description" rows="3"
+                            class="w-11/12 min-h-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"></textarea>
                     </div>
-                    <button type="button" id="addInstructionBtn" class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Add Instruction</button>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 font-semibold mb-2">Tags</label>
-                    <div id="tagsList" class="space-y-2">
-                        <div class="flex items-center gap-2">
-                            <input type="text" name="tags" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600" placeholder="e.g., easy">
-                            <button type="button" class="remove-tag px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Ingredients</label>
+                        <div id="ingredientsList" class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="ingredients" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                                    placeholder="e.g., 1 lb chicken">
+                                <button type="button"
+                                    class="remove-ingredient px-2 py-1 text-red-600 hover:text-red-800 hover:font-bold cursor-pointer">Remove</button>
+                            </div>
                         </div>
+                        <button type="button" id="addIngredientBtn"
+                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
+                            Ingredient</button>
                     </div>
-                    <button type="button" id="addTagBtn" class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Add Instruction</button>
-                </div>
-                <div class="mb-4">
-                    <label for="image" class="block text-gray-700 font-semibold mb-2">Image URL(Optional)</label>
-                    <input type="text" id="image" name="image"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
-                </div>
-                <div class="flex justify-end gap-4">
-                    <button type="button" id="cancelCreateModalBtn"
-                        class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Save
-                        Recipe</button>
-                </div>
-            </form>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Instructions</label>
+                        <div id="instructionsList" class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="instructions" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                                    placeholder="e.g., Preheat oven to 350°F">
+                                <button type="button"
+                                    class="remove-instruction px-2 py-1 text-red-600 hover:text-red-800 hover:font-bold cursor-pointer">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="addInstructionBtn"
+                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
+                            Instruction</button>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Tags</label>
+                        <div id="tagsList" class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <input type="text" name="tags"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+                                    placeholder="e.g., easy">
+                                <button type="button"
+                                    class="remove-tag px-2 py-1 text-red-600 hover:text-red-800 hover:font-bold cursor-pointer">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="addTagBtn"
+                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
+                            Instruction</button>
+                    </div>
+                    <div class="mb-4">
+                        <label for="image" class="block text-gray-700 font-semibold mb-2">Image URL(Optional)</label>
+                        <input type="text" id="image" name="image"
+                            class="w-11/12 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
+                    </div>
+                </form>
+            </div>
+            <div class="flex justify-end gap-4 sticky bottom-0 bg-white py-3">
+                <button type="button" id="cancelCreateModalBtn"
+                    class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:font-bold cursor-pointer">Cancel</button>
+                <button type="submit" form="createRecipeForm"
+                    class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Save
+                    Recipe</button>
+            </div>
         </div>
     </div>
 
