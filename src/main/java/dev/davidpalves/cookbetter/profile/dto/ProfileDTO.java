@@ -16,6 +16,7 @@ public class ProfileDTO {
     private Integer recipes;
 
     public ProfileDTO(String userId,String username, String name, String description, String avatarPhoto, Integer followers, Integer following, Integer recipes) {
+        this.userId = userId;
         this.name = name;
         this.username = username;
         this.description = description;

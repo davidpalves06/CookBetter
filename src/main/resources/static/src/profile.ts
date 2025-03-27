@@ -1,14 +1,15 @@
 import { getAuthUsername, isLogged, logout } from "./auth.js";
-
+import { Recipes, Recipe } from "./recipes.js";
 
 export { };
 
 const url = new URL(window.location.href);
 
 const pathParts = url.pathname.split('/').filter(part => part !== '');
-const profileUser = pathParts[0] || null;
+const profileUsername = pathParts[1] || null;
+let profileUserId: string = "";
 
-document.title = `@${profileUser} - CookBetter`
+document.title = `@${profileUsername} - CookBetter`
 
 const profileIcon = document.getElementById('profileIcon') as HTMLElement;
 const authenticationBtnDiv = document.getElementById('authenticationBtnDiv') as HTMLDivElement;
@@ -23,9 +24,11 @@ async function handleAuthenticationState() {
 		loggedInDiv.classList.remove('hidden');
 		document.querySelectorAll(".profile-btn").forEach((item) => {
 			let anchorTag = item as HTMLAnchorElement;
-			anchorTag.href = `/${username}`;
-		});  
-		if (username === profileUser) {
+			anchorTag.href = `/profile/${username}`;
+		});
+		const manageRecipeAnchor = document.getElementById('manageRecipeAnchor') as HTMLAnchorElement
+		manageRecipeAnchor.classList.remove('hidden')
+		if (username === profileUsername) {
 			editProfileBtn.classList.remove('hidden')
 		}
 	} else {
@@ -81,6 +84,7 @@ document.addEventListener("click", (event: Event) => {
 });
 
 interface ProfileInfo {
+	userId: string,
 	name: string,
 	username: string,
 	description: string,
@@ -91,12 +95,14 @@ interface ProfileInfo {
 }
 
 async function updateProfileInfo() {
-	const response = await fetch(`/api/profile/${profileUser}`, {
+	const response = await fetch(`/api/profile/${profileUsername}`, {
 		method: "GET"
 	});
-	
+
 	if (response.status == 200) {
 		let profileInfo: ProfileInfo = await response.json();
+
+		profileUserId = profileInfo.userId;
 		const profileAvatar = document.getElementById('profileAvatar') as HTMLImageElement
 		const profileContent = document.getElementById('profileContent') as HTMLDivElement
 		const defaultAvatar = document.getElementById('defaultAvatar') as HTMLImageElement
@@ -107,18 +113,14 @@ async function updateProfileInfo() {
 		const profileFollowers = document.getElementById('profileFollowers') as HTMLParagraphElement
 		const profileFollowing = document.getElementById('profileFollowing') as HTMLParagraphElement
 		const editBioArea = document.getElementById('editBioArea') as HTMLTextAreaElement;
-		const updateAvatar = document.getElementById('updateAvatar') as HTMLInputElement;
-		
-		console.log(profileInfo);
-		
-		profileAvatar.addEventListener('error',() => {
+
+		profileAvatar.addEventListener('error', () => {
 			defaultAvatar.classList.remove("hidden")
 			profileAvatar.classList.add("hidden")
 		})
 
 		if (profileInfo.avatarPhoto != undefined) {
 			profileAvatar.src = profileInfo.avatarPhoto
-			updateAvatar.value = profileAvatar.src;
 			defaultAvatar.classList.add("hidden")
 			profileAvatar.classList.remove("hidden")
 		} else {
@@ -132,13 +134,15 @@ async function updateProfileInfo() {
 		profileFollowers.textContent = `${profileInfo.followers}`
 		profileFollowing.textContent = `${profileInfo.following}`
 		profileContent.classList.remove('hidden')
+		getProfileRecipes()
+
 	} else if (response.status == 404) {
 		const profileError = document.getElementById('profileError') as HTMLDivElement
 		const errorStatus = document.getElementById('errorStatus') as HTMLHeadingElement
 		const errorDescription = document.getElementById('errorDescription') as HTMLParagraphElement
 
-		errorStatus.textContent = `@${profileUser} not found`
-		errorDescription.textContent = `User ${profileUser} was not found. Please review the username and try again.`
+		errorStatus.textContent = `@${profileUsername} not found`
+		errorDescription.textContent = `User ${profileUsername} was not found. Please review the username and try again.`
 		profileError.classList.remove('hidden');
 	}
 	else {
@@ -152,6 +156,7 @@ async function updateProfileInfo() {
 	}
 	const loadingSpinner = document.getElementById("loadingSpinner") as HTMLDivElement
 	loadingSpinner.classList.add('hidden')
+
 }
 
 updateProfileInfo()
@@ -169,34 +174,76 @@ editProfileBtn.addEventListener('click', () => {
 cancelModalBtn.addEventListener('click', () => {
 	editProfileModal.classList.remove('flex');
 	editProfileModal.classList.add('hidden');
-	
+
 });
 
 closeModalBtn.addEventListener('click', () => {
 	editProfileModal.classList.remove('flex');
 	editProfileModal.classList.add('hidden');
-	
+
 });
 
-editProfileForm.addEventListener('submit',(e:Event) => {
+editProfileForm.addEventListener('submit', (e: Event) => {
 	e.preventDefault();
-	
+
 	let errorMessage = document.getElementById('updateProfileErrorMessage') as HTMLDivElement;
 
 	const formData = new FormData(editProfileForm);
-	console.log(formData);
-	
-    fetch(`/api/profile/${profileUser}`, {
-        method: 'PUT',
-        body: formData
-    })
-    .then(response => {
-		if (response.ok) {
-			window.location.reload();
-		} else {
-			errorMessage.classList.remove('hidden');
-			setTimeout(() => errorMessage.classList.add('hidden'),5000)
-		}
+
+	fetch(`/api/profile/${profileUsername}`, {
+		method: 'PUT',
+		body: formData
 	})
-    .catch(error => console.error('Error updating profile:', error));
+		.then(response => {
+			if (response.ok) {
+				window.location.reload();
+			} else {
+				errorMessage.classList.remove('hidden');
+				setTimeout(() => errorMessage.classList.add('hidden'), 5000)
+			}
+		})
+		.catch(error => console.error('Error updating profile:', error));
 });
+
+function getProfileRecipes() {
+	fetch(`/api/recipes/user/${profileUserId}`, {
+		method: 'GET',
+	})
+		.then(response => {
+			if (response.ok) {
+				return response.json() as Promise<Recipes>
+			} else {
+				throw new Error("Failure while getting recipes");
+			}
+		}).then(recipeJson => {
+			let userRecipes = recipeJson.recipes
+            const recipeGrid = document.getElementById('recipeGrid') as HTMLDivElement
+			if (userRecipes.length === 0) {
+				recipeGrid.innerHTML = `<p class="text-gray-600 text-lg">This profile has no recipes!</p>`
+			}
+			userRecipes.forEach(recipe => {
+				let recipeDiv = document.createElement('div');
+				recipeDiv.className = "w-full bg-gray-50 rounded-lg overflow-hidden hover:shadow-md hover:scale-105 transition-shadow cursor-pointer";
+				recipeDiv.innerHTML = `
+                <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-40 object-contain">
+                <div class="p-4">
+				<h4 class="text-lg font-semibold text-gray-800">${recipe.title}</h4>
+				<p class="text-gray-600 text-sm">${recipe.description}</p>
+				</div>
+				`;
+				recipeDiv.addEventListener('click', () => {
+					window.location.href = `/recipe/${recipe.id}`
+				})
+				recipeGrid.appendChild(recipeDiv);
+			})
+			const recipesSection = document.getElementById('recipesSection') as HTMLDivElement;
+			recipeGrid.classList.remove('hidden')
+		})
+		.catch(error => {
+			const recipeError = document.getElementById('recipeError') as HTMLDivElement
+			recipeError.innerHTML = `<h2 class="text-3xl font-bold text-gray-800" >Error loading recipes</h2>
+            <p class="text-gray-600 mt-1">An error occurred while fetching recipes. Please try again later</p>`
+		});
+	const recipesLoadingSpinner = document.getElementById("recipesLoadingSpinner") as HTMLDivElement
+	recipesLoadingSpinner.classList.add('hidden')
+}

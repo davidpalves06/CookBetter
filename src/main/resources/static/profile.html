@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile - CookBetter</title>
     <link href="/styles.css" rel="stylesheet">
-    <script src="dist/profile.js" type="module" defer></script>
+    <script src="/dist/profile.js" type="module" defer></script>
 </head>
 
 <body class="font-sans min-h-screen flex flex-col bg-gray-100">
@@ -154,8 +154,8 @@
                     </div>
                     <div class="mb-4">
                         <label for="updateAvatar" class="block text-gray-700 font-semibold mb-2">Profile Picture</label>
-                        <input type="text" id="updateAvatar" name="avatarPhoto"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
+                        <input type="file" id="updateAvatar" name="image" accept="image/*"
+                            class="w-11/12 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
                     </div>
                     <div id="updateProfileErrorMessage"
                         class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-2 mb-2 text-xs rounded font-sans font-bold">
@@ -174,30 +174,19 @@
     </section>
 
 
-    <section class="max-w-4xl mx-auto my-8 p-6 bg-white rounded-lg shadow-md hidden">
-        <h3 class="text-2xl font-semibold text-gray-800 mb-4">My Recipes</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <img src="/recipe1.jpg" alt="Recipe 1" class="w-full h-40 object-cover">
-                <div class="p-4">
-                    <h4 class="text-lg font-semibold text-gray-800">Spicy Chicken Tacos</h4>
-                    <p class="text-gray-600 text-sm">A zesty twist on a classic favorite.</p>
-                </div>
-            </div>
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <img src="/recipe2.jpg" alt="Recipe 2" class="w-full h-40 object-cover">
-                <div class="p-4">
-                    <h4 class="text-lg font-semibold text-gray-800">Creamy Mushroom Pasta</h4>
-                    <p class="text-gray-600 text-sm">Rich and comforting for any night.</p>
-                </div>
-            </div>
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <img src="/recipe3.jpg" alt="Recipe 3" class="w-full h-40 object-cover">
-                <div class="p-4">
-                    <h4 class="text-lg font-semibold text-gray-800">Lemon Blueberry Cake</h4>
-                    <p class="text-gray-600 text-sm">A sweet and tangy dessert delight.</p>
-                </div>
-            </div>
+    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md flex flex-col items-center" id="recipesSection">
+        <div class="w-full lg:w-10/12 flex flex-row justify-between items-center mb-4">
+            <h3 class="text-2xl font-semibold uppercase text-gray-800 mr-1">Recipes</h3>
+            <a href="/recipes"
+                class="px-4 py-2 text-nowrap font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 hover:font-bold cursor-pointer"
+                id="manageRecipeAnchor">Manage recipes</a>
+        </div>
+        <div id="recipesLoadingSpinner" class="flex justify-center items-center h-64">
+            <div class="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <div id="recipeGrid" class="w-11/12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 grid">
+        </div>
+        <div id="recipeError" class="hidden">
         </div>
     </section>
 

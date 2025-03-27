@@ -1,5 +1,9 @@
 import { storage } from "./storage.js";
 
+interface AuthenticationInfo {
+    userId:string,
+    username:string
+}
 const verifyAuthAJAX = async () => {
     const verifyAuthResponse = await fetch("/api/auth/verify", {
         method: "GET",
@@ -9,7 +13,7 @@ const verifyAuthAJAX = async () => {
     })
     if (verifyAuthResponse.ok) {
         const verifyAuthResponseJSON = await verifyAuthResponse.json();
-        storage.setItem<string>("logged", verifyAuthResponseJSON.username, 300)
+        storage.setItem<string>("logged", JSON.stringify(verifyAuthResponseJSON), 300)
         return true;
     }
     return false;
@@ -20,7 +24,21 @@ async function isLogged() {
 }
 
 function getAuthUsername() {
-    return storage.getItem<string>("logged");
+    let authString = storage.getItem<string>("logged");
+    if (authString != null) {
+        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
+        return authInfo.username
+    }
+    return null;
+}
+
+function getAuthUserID() {
+    let authString = storage.getItem<string>("logged");
+    if (authString != null) {
+        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
+        return authInfo.userId
+    }
+    return null;
 }
 
 function isValidEmail(email: string): boolean {

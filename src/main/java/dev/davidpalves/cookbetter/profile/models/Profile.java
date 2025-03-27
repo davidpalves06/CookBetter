@@ -1,11 +1,12 @@
 package dev.davidpalves.cookbetter.profile.models;
 
+import dev.davidpalves.cookbetter.models.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Profile {
+public class Profile extends Entity {
     private String id;
     private String userId;
     private String username;

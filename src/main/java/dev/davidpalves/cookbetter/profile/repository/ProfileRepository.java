@@ -7,6 +7,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -23,7 +24,7 @@ public class ProfileRepository {
 
     private void createProfileTableIfNotExists() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS profiles (" +
-                "id SERIAL PRIMARY KEY, " +
+                "id BIGSERIAL PRIMARY KEY, " +
                 "userId INTEGER NOT NULL , " +
                 "name VARCHAR(100) NOT NULL, " +
                 "username VARCHAR(100) UNIQUE NOT NULL," +
@@ -32,6 +33,8 @@ public class ProfileRepository {
                 "followers INTEGER NOT NULL," +
                 "following INTEGER NOT NULL," +
                 "recipes INTEGER NOT NULL," +
+                "created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+                "modified_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE" +
                 ")";
 
@@ -87,7 +90,11 @@ public class ProfileRepository {
                     int followers = rs.getInt("followers");
                     int following = rs.getInt("following");
                     int recipes = rs.getInt("recipes");
+                    LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
+                    LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
                     Profile profile = new Profile(id,userId,username,name,description,avatarPhoto,followers,following,recipes);
+                    profile.setCreatedAt(createdAt);
+                    profile.setModifiedAt(modifiedAt);
                     return Optional.of(profile);
                 } else {
                     return Optional.empty();
@@ -150,7 +157,11 @@ public class ProfileRepository {
                     int followers = rs.getInt("followers");
                     int following = rs.getInt("following");
                     int recipes = rs.getInt("recipes");
+                    LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
+                    LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
                     Profile profile = new Profile(id,userId,profileUsername,name,description,avatarPhoto,followers,following,recipes);
+                    profile.setCreatedAt(createdAt);
+                    profile.setModifiedAt(modifiedAt);
                     return Optional.of(profile);
                 } else {
                     return Optional.empty();
@@ -170,7 +181,8 @@ public class ProfileRepository {
                     avatarPhoto = ?,
                     followers = ?,
                     following = ?,
-                    recipes = ?
+                    recipes = ?,
+                    modified_at = CURRENT_TIMESTAMP
                 WHERE id = ?;
 """;
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {

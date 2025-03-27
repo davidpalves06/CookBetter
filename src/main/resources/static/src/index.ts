@@ -18,7 +18,7 @@ async function handleAuthenticationState() {
         });
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
-            anchorTag.href = `/${username}`;
+            anchorTag.href = `/profile/${username}`;
         });
     } else {
         authenticationBtnDiv.classList.remove('hidden');

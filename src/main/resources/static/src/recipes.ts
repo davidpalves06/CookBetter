@@ -10,7 +10,7 @@ async function handleAuthenticationState() {
         let username = getAuthUsername();
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
-            anchorTag.href = `/${username}`;
+            anchorTag.href = `/profile/${username}`;
         });
     } else {
         window.location.href = "/login";
@@ -63,17 +63,17 @@ document.addEventListener("click", (event: Event) => {
     }
 });
 
-interface Recipe {
+export interface Recipe {
     id: string;
     title: string;
     description: string;
     ingredients: string[];
     instructions: string[];
-    tags?: string[];
-    image?: string;
+    tags: string[];
+    imageUrl?: string;
 }
 
-interface Recipes {
+export interface Recipes {
     recipes: Recipe[]
 }
 
@@ -87,22 +87,24 @@ function loadRecipes() {
         .then(response => response.json())
         .then((recipes: Recipes) => {
             let recipeList = recipes.recipes;
-            
             recipesList.innerHTML = '';
             if (recipeList.length === 0) {
                 recipesList.innerHTML = '<p class="col-start-1 col-end-3 text-gray-800 font-medium">No recipes yet. Start sharing your recipes now.</p>'
             } else {
                 recipeList.forEach(recipe => {
                     const recipeCard = document.createElement('div');
-                    recipeCard.className = 'bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow';
+                    recipeCard.className = ' bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow';
                     recipeCard.innerHTML = `
-                    <img src="${recipe.image || '/default-recipe.jpg'}" alt="${recipe.title}" class="w-full h-40 object-cover">
+                    <div class="mt-2 flex justify-center gap-2 relative">
+                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="flex h-40 object-cover rounded-sm">
+                    <div class="absolute -inset-0.5 bg-gradient-to-t from-gray-50 via-transparent to-transparent"></div>
+                    </div>
                     <div class="p-4">
                     <h4 class="text-lg font-semibold text-gray-800">${recipe.title}</h4>
                     <p class="text-gray-600 text-sm">${recipe.description || 'No description'}</p>
                     <div class="mt-2 flex justify-end gap-2">
-                        <button class="edit-btn px-2 py-1 text-orange-600 hover:text-orange-800" data-id="${recipe.id}">Edit</button>
-                        <button class="delete-btn px-2 py-1 text-red-600 hover:text-red-800" data-id="${recipe.id}">Delete</button>
+                        <button class="view-btn px-2 py-1 text-orange-600 hover:text-orange-800 hover:font-semibold cursor-pointer" data-id="${recipe.id}">View</button>
+                        <button class="delete-btn px-2 py-1 text-red-600 hover:text-red-800 hover:font-semibold cursor-pointer" data-id="${recipe.id}">Delete</button>
                     </div>
                     </div>
                     `;
@@ -111,10 +113,10 @@ function loadRecipes() {
             }
             loadingSpinner.classList.add('hidden');
 
-            document.querySelectorAll('.edit-btn').forEach(btn => {
+            document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = (e.target as HTMLButtonElement).dataset.id;
-                    alert(`Edit recipe ID: ${id} (Edit functionality TBD)`);
+                    window.location.href = `/recipe/${id}`
                 });
             });
 
@@ -138,8 +140,12 @@ function deleteRecipe(id: number) {
     fetch(`/api/recipes/${id}`, {
         method: 'DELETE'
     })
-        .then(() => window.location.reload())
-        .catch(error => console.error('Error deleting recipe:', error));
+        .then((response) => {
+            if (response.ok) {
+                window.location.reload()
+            } else
+                throw new Error("Error response from server");
+        }).catch(error => console.error('Error deleting recipe:', error));
 }
 
 const createRecipeBtn = document.getElementById('createRecipeBtn') as HTMLButtonElement;
@@ -165,12 +171,13 @@ cancelCreateModalBtn.addEventListener('click', () => {
 createRecipeForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(createRecipeForm);
-    
+
     fetch('/api/recipes', {
         method: 'POST',
         body: formData
     }).then(response => {
-        if (response.ok) window.location.reload();}
+        if (response.ok) window.location.reload();
+    }
     ).catch(error => {
         console.error('Error creating recipe:', error);
         alert('Failed to create recipe.');

@@ -98,7 +98,7 @@ public class AuthenticationController {
             Cookie authCookie = createAuthCookie(authToken.username(), authToken.userId());
             response.addCookie(authCookie);
         }
-        return new ResponseEntity<>(Map.of("username",authToken.username()),HttpStatus.OK);
+        return new ResponseEntity<>(Map.of("userId",authToken.userId(),"username",authToken.username()),HttpStatus.OK);
     }
 
     @GetMapping("/logout")

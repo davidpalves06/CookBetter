@@ -1,5 +1,6 @@
 package dev.davidpalves.cookbetter.recipes.models;
 
+import dev.davidpalves.cookbetter.models.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Recipe {
+public class Recipe extends Entity {
     private String id;
     private String title;
     private String userId;

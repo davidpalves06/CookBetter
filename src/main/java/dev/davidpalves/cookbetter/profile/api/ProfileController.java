@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -40,14 +41,15 @@ public class ProfileController {
     }
 
     @PutMapping(value = "/{username}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> updateProfileByUsername(@PathVariable String username,@ModelAttribute ProfileDTO profileDTO) {
+    public ResponseEntity<Void> updateProfileByUsername(@PathVariable String username, @ModelAttribute ProfileDTO profileDTO,
+                                                        @RequestParam(value = "image", required = false) MultipartFile image) {
         String authUsername = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         if (!authUsername.equals(username)) {
             log.warn("{} Wrong user {} tried to update profile {}", LOG_TITLE, authUsername, username);
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         log.info("{} Update profile by username request received", LOG_TITLE);
-        ServiceResult<ProfileDTO> serviceResult = profileService.updateProfileByUsername(username,profileDTO);
+        ServiceResult<ProfileDTO> serviceResult = profileService.updateProfileByUsername(username,profileDTO,image);
         if (serviceResult.isSuccess()) {
             log.info("{} Profile updated successfully", LOG_TITLE);
             return new ResponseEntity<>(HttpStatus.OK);

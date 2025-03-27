@@ -22,11 +22,13 @@ public class UserRepository {
 
     private void createUserTableIfNotExists() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS users (" +
-                "id SERIAL PRIMARY KEY, " +
+                "id BIGSERIAL PRIMARY KEY, " +
                 "name VARCHAR(100) NOT NULL, " +
                 "email VARCHAR(100) UNIQUE NOT NULL," +
                 "username VARCHAR(100) UNIQUE NOT NULL," +
-                "password VARCHAR(100) NOT NULL" +
+                "password VARCHAR(100) NOT NULL," +
+                "created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+                "modified_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
         try (Connection connection = connectionProvider.getConnection(); Statement stmt = connection.createStatement()) {
@@ -101,6 +103,8 @@ public class UserRepository {
                     user.setUsername(rs.getString("username"));
                     user.setPassword(rs.getString("password"));
                     user.setName(rs.getString("name"));
+                    user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    user.setModifiedAt(rs.getTimestamp("modified_at").toLocalDateTime());
                     return Optional.of(user);
                 } else {
                     return Optional.empty();

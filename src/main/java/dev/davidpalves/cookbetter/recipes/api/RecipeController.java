@@ -7,8 +7,10 @@ import dev.davidpalves.cookbetter.recipes.service.RecipeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -50,8 +52,9 @@ public class RecipeController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Void> createRecipe(HttpServletRequest request, RecipeDTO recipeDTO) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> createRecipe(HttpServletRequest request,@ModelAttribute RecipeDTO recipeDTO,
+                                             @RequestParam(value = "image", required = false) MultipartFile image) {
         log.info("{} Create recipe request received", LOG_TITLE);
         String userId = request.getAttribute("userId").toString();
         if (userId == null) {
@@ -60,7 +63,7 @@ public class RecipeController {
         if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        ServiceResult<String> serviceResult = recipeService.createRecipe(recipeDTO,userId);
+        ServiceResult<String> serviceResult = recipeService.createRecipe(recipeDTO,image,userId);
         if (serviceResult.isSuccess()) {
             log.info("{} Recipe created successfully", LOG_TITLE);
             return new ResponseEntity<>(HttpStatus.CREATED);
@@ -81,6 +84,23 @@ public class RecipeController {
         }
         else {
             log.info("{} Recipe search failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
+            if (serviceResult.getErrorCode() == 2) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{recipeId}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable String recipeId) {
+        log.info("{} Delete recipe {} request received", LOG_TITLE, recipeId);
+        ServiceResult<String> serviceResult = recipeService.deleteRecipe(recipeId);
+        if (serviceResult.isSuccess()) {
+            log.info("{} Recipe deleted successfully", LOG_TITLE);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        else {
+            log.info("{} Recipe deletion failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
             if (serviceResult.getErrorCode() == 2) {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }

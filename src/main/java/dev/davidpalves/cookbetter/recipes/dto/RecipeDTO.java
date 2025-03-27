@@ -16,6 +16,6 @@ public class RecipeDTO {
     private List<String> ingredients;
     private List<String> instructions;
     private List<String> tags;
-    private String image;
+    private String imageUrl;
 
 }

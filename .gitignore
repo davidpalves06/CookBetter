@@ -60,3 +60,6 @@ node_modules/
 package-lock.json
 dist/
 styles.css
+
+/src/main/resources/static/profile/assets/
+/src/main/resources/static/recipes/assets/

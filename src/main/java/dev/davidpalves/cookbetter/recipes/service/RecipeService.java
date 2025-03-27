@@ -8,15 +8,24 @@ import dev.davidpalves.cookbetter.recipes.models.Recipe;
 import dev.davidpalves.cookbetter.recipes.repository.RecipeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class RecipeService {
     private static final String LOG_TITLE = "[RecipeService] -";
+    //TODO: THIS SHOULD BE ANOTHER FOLDER. Fix FilePath using "src/main/resources/static/"
+    private static final String RECIPE_PHOTO_DIR = "recipes/assets/";
 
     private final RecipeRepository recipeRepository;
     private final ProfileService profileService;
@@ -25,13 +34,15 @@ public class RecipeService {
     public RecipeService(RecipeRepository recipeRepository, ProfileService profileService) {
         this.recipeRepository = recipeRepository;
         this.profileService = profileService;
+        File file = new File("src/main/resources/static/" + RECIPE_PHOTO_DIR);
+        boolean created = file.mkdirs();
     }
 
     public ServiceResult<RecipesDTO> getRecipes() {
         return new ServiceResult<>();
     }
 
-    public ServiceResult<String> createRecipe(RecipeDTO recipeDTO,String userId) {
+    public ServiceResult<String> createRecipe(RecipeDTO recipeDTO, MultipartFile image, String userId) {
         log.debug("{} Create recipe : {}", LOG_TITLE,recipeDTO);
         ServiceResult<String> serviceResult;
         try {
@@ -40,10 +51,12 @@ public class RecipeService {
             recipe.setUserId(userId);
             recipe.setTitle(recipeDTO.getTitle());
             recipe.setDescription(recipeDTO.getDescription());
-            recipe.setImage(recipeDTO.getImage());
+            recipe.setImage(recipeDTO.getImageUrl());
             recipe.setInstructions(recipeDTO.getInstructions());
             recipe.setIngredients(recipeDTO.getIngredients());
-            recipe.setInstructions(recipeDTO.getInstructions());
+            recipe.setTags(recipeDTO.getTags());
+            String imageUrl = getImageUrl(image);
+            recipe.setImage(imageUrl);
             String id = recipeRepository.save(recipe);
             if (id != null) {
                 ServiceResult<Integer> addRecipeToProfile = profileService.addRecipeToProfile(userId);
@@ -62,11 +75,22 @@ public class RecipeService {
                 recipeRepository.rollbackConnection();
             }
             return serviceResult;
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             log.error(String.valueOf(e));
             recipeRepository.rollbackConnection();
             return new ServiceResult<>(false,null,"Internal Error",1);
         }
+    }
+
+    private String getImageUrl(MultipartFile image) throws IOException {
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path filePath = Paths.get("src/main/resources/static/" + RECIPE_PHOTO_DIR + fileName);
+            Files.write(filePath, image.getBytes());
+            imageUrl = "/" + RECIPE_PHOTO_DIR + fileName;
+        }
+        return imageUrl;
     }
 
     public ServiceResult<RecipeDTO> getRecipe(String recipeId) {
@@ -98,7 +122,7 @@ public class RecipeService {
         ServiceResult<RecipesDTO> serviceResult;
         try {
             recipeRepository.startConnection();
-            List<Recipe> userRecipes = recipeRepository.findByUser(userId);
+            List<Recipe> userRecipes = recipeRepository.findAllByUser(userId);
             List<RecipeDTO> recipeDTOList = userRecipes.stream().map((this::buildRecipeDTO)).toList();
             RecipesDTO recipesDTO = new RecipesDTO(recipeDTOList);
             log.debug("{} Recipes found {}", LOG_TITLE, recipesDTO);
@@ -112,15 +136,48 @@ public class RecipeService {
         }
     }
 
+    public ServiceResult<String> deleteRecipe(String recipeId) {
+        log.debug("{} Delete recipe {}", LOG_TITLE,recipeId);
+        ServiceResult<String> serviceResult;
+        try {
+            recipeRepository.startConnection();
+            Recipe deleted = recipeRepository.delete(recipeId);
+            if (deleted != null) {
+                ServiceResult<Integer> deleteRecipeFromProfile = profileService.deleteRecipeFromProfile(deleted.getUserId());
+                if (deleteRecipeFromProfile.isSuccess()) {
+                    log.debug("{} Recipe deleted {}", LOG_TITLE, recipeId);
+                    serviceResult = new ServiceResult<>(true, "", null, 0);
+                    recipeRepository.closeConnection();
+                } else{
+                    log.debug("{} Error updating recipe count ", LOG_TITLE);
+                    serviceResult = new ServiceResult<>(false, null, "Error creating recipe", 2);
+                    recipeRepository.rollbackConnection();
+                }
+            }
+            else {
+                log.debug("{} Error deleting recipe", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Error deleting recipe",1);
+                recipeRepository.rollbackConnection();
+            }
+            return serviceResult;
+        } catch (SQLException e) {
+            log.error(String.valueOf(e));
+            recipeRepository.rollbackConnection();
+            return new ServiceResult<>(false,null,"Internal Error",2);
+        }
+    }
+
     private RecipeDTO buildRecipeDTO(Recipe recipe) {
         RecipeDTO recipeDTO = new RecipeDTO();
         recipeDTO.setId(recipe.getId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setDescription(recipe.getDescription());
-        recipeDTO.setImage(recipe.getImage());
+        recipeDTO.setImageUrl(recipe.getImage());
         recipeDTO.setInstructions(recipe.getInstructions());
         recipeDTO.setIngredients(recipe.getIngredients());
-        recipeDTO.setInstructions(recipe.getInstructions());
+        recipeDTO.setTags(recipe.getTags());
         return recipeDTO;
     }
+
+
 }

@@ -1,0 +1,8 @@
+npx @tailwindcss/cli -i ./index.css -o ./styles.css --watch
+npx tsc --watch
+docker run -d --name my-postgres -e POSTGRES_USER=test_user -e POSTGRES_PASSWORD=test_pass -e POSTGRES_DB=cookbetter -p 5432:5432 postgres:latest
+
+TODO: Edit recipe
+TODO: REFACTOR UPLOAD PHOTO BUTTON ON UPDATE PROFILE AND RECIPE
+TODO: SEVERAL RECIPE IMAGES
+TODO: Cropped Image.
