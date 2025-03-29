@@ -82,6 +82,44 @@ public class RecipeService {
         }
     }
 
+    public ServiceResult<String> updateRecipe(RecipeDTO recipeDTO, MultipartFile image, String recipeId) {
+        log.debug("{} Create recipe : {}", LOG_TITLE,recipeDTO);
+        ServiceResult<String> serviceResult;
+        try {
+            recipeRepository.startConnection();
+            Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
+            if (optionalRecipe.isPresent()) {
+                Recipe recipe = optionalRecipe.get();
+                recipe.setTitle(recipeDTO.getTitle());
+                recipe.setDescription(recipeDTO.getDescription());
+                recipe.setIngredients(recipeDTO.getIngredients());
+                recipe.setInstructions(recipeDTO.getInstructions());
+                recipe.setTags(recipeDTO.getTags());
+                String imageUrl = getImageUrl(image);
+                if (imageUrl != null) recipe.setImage(imageUrl);
+
+                if (recipeRepository.update(recipe)) {
+                    log.debug("{} Recipe updated {}", LOG_TITLE, recipeId);
+                    serviceResult = new ServiceResult<>(true, "Recipe Updated", null, 0);
+                    recipeRepository.closeConnection();
+                } else {
+                    log.debug("{} Error updating recipe", LOG_TITLE);
+                    serviceResult = new ServiceResult<>(false,null,"Error updating recipe",2);
+                    recipeRepository.rollbackConnection();
+                }
+            } else {
+                log.debug("{} Error founding recipe", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Error founding recipe",1);
+                recipeRepository.rollbackConnection();
+            }
+            return serviceResult;
+        } catch (SQLException | IOException e) {
+            log.error(String.valueOf(e));
+            recipeRepository.rollbackConnection();
+            return new ServiceResult<>(false,null,"Internal Error",2);
+        }
+    }
+
     private String getImageUrl(MultipartFile image) throws IOException {
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
@@ -170,6 +208,7 @@ public class RecipeService {
     private RecipeDTO buildRecipeDTO(Recipe recipe) {
         RecipeDTO recipeDTO = new RecipeDTO();
         recipeDTO.setId(recipe.getId());
+        recipeDTO.setUserId(recipe.getUserId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setDescription(recipe.getDescription());
         recipeDTO.setImageUrl(recipe.getImage());
@@ -178,6 +217,5 @@ public class RecipeService {
         recipeDTO.setTags(recipe.getTags());
         return recipeDTO;
     }
-
 
 }

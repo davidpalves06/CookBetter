@@ -11,6 +11,7 @@ import java.util.List;
 @ToString
 public class RecipeDTO {
     private String id;
+    private String userId;
     private String title;
     private String description;
     private List<String> ingredients;

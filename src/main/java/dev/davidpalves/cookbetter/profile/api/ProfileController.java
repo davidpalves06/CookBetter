@@ -23,13 +23,40 @@ public class ProfileController {
     }
 
 
-    @GetMapping("/{username}")
-    public ResponseEntity<ProfileDTO> getProfileByUsername(@PathVariable String username) {
+    @GetMapping
+    public ResponseEntity<ProfileDTO> getProfile(@RequestParam(value = "userId", required = false) String userId,
+                                                           @RequestParam(value = "username", required = false) String username) {
+        if (userId != null) {
+            return getProfileByUserId(userId);
+        } else if (username != null) {
+            return getProfileByUsername(username);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private ResponseEntity<ProfileDTO> getProfileByUserId(String userId) {
+        log.info("{} Get profile by userId request received", LOG_TITLE);
+        ServiceResult<ProfileDTO> serviceResult = profileService.getProfileByUserId(userId);
+        if (serviceResult.isSuccess()) {
+            log.info("{} Profile found successfully", LOG_TITLE);
+            return new ResponseEntity<>(serviceResult.getData(), HttpStatus.OK);
+        }
+        else {
+            log.info("{} Profile search failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
+            if (serviceResult.getErrorCode() == 2) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private ResponseEntity<ProfileDTO> getProfileByUsername(String username) {
         log.info("{} Get profile by username request received", LOG_TITLE);
         ServiceResult<ProfileDTO> serviceResult = profileService.getProfileByUsername(username);
         if (serviceResult.isSuccess()) {
             log.info("{} Profile found successfully", LOG_TITLE);
-            return new ResponseEntity<>(serviceResult.getData(),HttpStatus.OK);
+            return new ResponseEntity<>(serviceResult.getData(), HttpStatus.OK);
         }
         else {
             log.info("{} Profile search failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());

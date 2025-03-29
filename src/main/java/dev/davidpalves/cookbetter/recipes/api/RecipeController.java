@@ -91,6 +91,31 @@ public class RecipeController {
         }
     }
 
+    @PutMapping("/{recipeId}")
+    public ResponseEntity<RecipeDTO> updateRecipe(@PathVariable String recipeId,HttpServletRequest request,@ModelAttribute RecipeDTO recipeDTO,
+                                                  @RequestParam(value = "image", required = false) MultipartFile image) {
+        log.info("{} Update recipe request received", LOG_TITLE);
+        String userId = request.getAttribute("userId").toString();
+        if (userId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        ServiceResult<String> serviceResult = recipeService.updateRecipe(recipeDTO,image,recipeId);
+        if (serviceResult.isSuccess()) {
+            log.info("{} Recipe updated successfully", LOG_TITLE);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else {
+            log.info("{} Recipe update failed due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
+            if (serviceResult.getErrorCode() == 2) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @DeleteMapping("/{recipeId}")
     public ResponseEntity<Void> deleteRecipe(@PathVariable String recipeId) {
         log.info("{} Delete recipe {} request received", LOG_TITLE, recipeId);

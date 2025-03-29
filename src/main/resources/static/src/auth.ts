@@ -60,4 +60,4 @@ async function logout() {
     }
 };
 
-export { verifyAuthAJAX, isLogged, getAuthUsername, isValidEmail, hasUppercaseAndNumber, logout };
+export { verifyAuthAJAX, isLogged, getAuthUsername, getAuthUserID, isValidEmail, hasUppercaseAndNumber, logout };

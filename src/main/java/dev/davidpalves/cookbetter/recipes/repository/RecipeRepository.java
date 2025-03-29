@@ -249,4 +249,78 @@ public class RecipeRepository {
         }
         return null;
     }
+
+    public boolean update(Recipe recipe) throws SQLException {
+        Connection connection = connectionProvider.getConnection();
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Connection is not open");
+        }
+        String sql = """
+                UPDATE recipes
+                SET title = ?,
+                    description = ?,
+                    image = ?,
+                    modified_at = CURRENT_TIMESTAMP
+                WHERE id = ?;
+""";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, recipe.getTitle());
+            stmt.setString(2, recipe.getDescription());
+            stmt.setString(3, recipe.getImage());
+            stmt.setInt(4, Integer.parseInt(recipe.getId()));
+            if (stmt.executeUpdate() == 0) {
+                return false;
+            }
+        }
+
+        String ingredientSql = "DELETE FROM recipes_ingredients WHERE recipeid = ?;";
+        try (PreparedStatement stmt = connection.prepareStatement(ingredientSql)) {
+            stmt.setInt(1, Integer.parseInt(recipe.getId()));
+            if (stmt.executeUpdate() == 0) {
+                return false;
+            }
+        }
+
+        for (String ingredient : recipe.getIngredients()) {
+            String insertIngSql = "INSERT INTO recipes_ingredients (recipeid, ingredient) VALUES (?, ?)";
+            try (PreparedStatement ingStmt = connection.prepareStatement(insertIngSql)) {
+                ingStmt.setInt(1, Integer.parseInt(recipe.getId()));
+                ingStmt.setString(2, ingredient);
+                ingStmt.executeUpdate();
+            }
+        }
+
+        String instructionSql = "DELETE FROM recipes_instructions WHERE recipeid = ?;";
+        try (PreparedStatement stmt = connection.prepareStatement(instructionSql)) {
+            stmt.setInt(1, Integer.parseInt(recipe.getId()));
+            if (stmt.executeUpdate() == 0) {
+                return false;
+            }
+        }
+
+        for (String instruction : recipe.getInstructions()) {
+            String insertInstSql = "INSERT INTO recipes_instructions (recipeid, instruction) VALUES (?, ?)";
+            try (PreparedStatement ingStmt = connection.prepareStatement(insertInstSql)) {
+                ingStmt.setInt(1, Integer.parseInt(recipe.getId()));
+                ingStmt.setString(2, instruction);
+                ingStmt.executeUpdate();
+            }
+        }
+
+        String tagSql = "DELETE FROM recipes_tags WHERE recipeid = ?;";
+        try (PreparedStatement stmt = connection.prepareStatement(tagSql)) {
+            stmt.setInt(1, Integer.parseInt(recipe.getId()));
+            stmt.executeUpdate();
+        }
+
+        for (String tag : recipe.getTags()) {
+            String insertTagSql = "INSERT INTO recipes_tags (recipeid, tag) VALUES (?, ?)";
+            try (PreparedStatement ingStmt = connection.prepareStatement(insertTagSql)) {
+                ingStmt.setInt(1, Integer.parseInt(recipe.getId()));
+                ingStmt.setString(2, tag);
+                ingStmt.executeUpdate();
+            }
+        }
+        return true;
+    }
 }

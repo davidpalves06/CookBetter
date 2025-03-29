@@ -83,7 +83,7 @@ document.addEventListener("click", (event: Event) => {
 	}
 });
 
-interface ProfileInfo {
+export interface ProfileInfo {
 	userId: string,
 	name: string,
 	username: string,
@@ -95,7 +95,7 @@ interface ProfileInfo {
 }
 
 async function updateProfileInfo() {
-	const response = await fetch(`/api/profile/${profileUsername}`, {
+	const response = await fetch(`/api/profile?username=${profileUsername}`, {
 		method: "GET"
 	});
 
@@ -105,7 +105,6 @@ async function updateProfileInfo() {
 		profileUserId = profileInfo.userId;
 		const profileAvatar = document.getElementById('profileAvatar') as HTMLImageElement
 		const profileContent = document.getElementById('profileContent') as HTMLDivElement
-		const defaultAvatar = document.getElementById('defaultAvatar') as HTMLImageElement
 		const profileName = document.getElementById('profileName') as HTMLHeadingElement
 		const profileUsername = document.getElementById('profileUsername') as HTMLParagraphElement
 		const profileDescription = document.getElementById('profileDescription') as HTMLParagraphElement
@@ -114,17 +113,10 @@ async function updateProfileInfo() {
 		const profileFollowing = document.getElementById('profileFollowing') as HTMLParagraphElement
 		const editBioArea = document.getElementById('editBioArea') as HTMLTextAreaElement;
 
-		profileAvatar.addEventListener('error', () => {
-			defaultAvatar.classList.remove("hidden")
-			profileAvatar.classList.add("hidden")
-		})
-
 		if (profileInfo.avatarPhoto != undefined) {
 			profileAvatar.src = profileInfo.avatarPhoto
-			defaultAvatar.classList.add("hidden")
-			profileAvatar.classList.remove("hidden")
 		} else {
-			defaultAvatar.classList.remove("hidden")
+			profileAvatar.src = "avatar-default-svgrepo-com.svg"
 		}
 		profileName.textContent = profileInfo.name
 		profileUsername.textContent = `@${profileInfo.username}`
@@ -190,7 +182,7 @@ editProfileForm.addEventListener('submit', (e: Event) => {
 
 	const formData = new FormData(editProfileForm);
 
-	fetch(`/api/profile/${profileUsername}`, {
+	fetch(`/api/profile?username=${profileUsername}`, {
 		method: 'PUT',
 		body: formData
 	})

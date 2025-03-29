@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
     private static final String[] PRIVATE_PATHS = {"/api/auth/verify","/api/auth/logout","/api/recipes","/api/recipes/user"};
-    private static final String[] MODIFICATION_PATHS = {"/api/profile/*"};
+    private static final String[] MODIFICATION_PATHS = {"/api/profile/*","/api/recipes/*"};
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final AuthTokenEncrypter authTokenEncrypter;
 

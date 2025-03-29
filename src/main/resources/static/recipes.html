@@ -131,8 +131,7 @@
                             </div>
                         </div>
                         <button type="button" id="addIngredientBtn"
-                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
-                            Ingredient</button>
+                            class="cursor-pointer text-orange-600 hover:text-orange-800 mt-2">+ Add Ingredient</button>
                     </div>
                     <div class="mb-4">
                         <label class="block text-gray-700 font-semibold mb-2">Instructions</label>
@@ -146,26 +145,15 @@
                             </div>
                         </div>
                         <button type="button" id="addInstructionBtn"
-                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
+                            class="cursor-pointer text-orange-600 hover:text-orange-800 mt-2">+ Add
                             Instruction</button>
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Tags</label>
-                        <div id="tagsList" class="space-y-2">
-                            <div class="flex items-center gap-2">
-                                <input type="text" name="tags"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
-                                    placeholder="e.g., easy">
-                                <button type="button"
-                                    class="remove-tag px-2 py-1 text-red-600 hover:text-red-800 hover:font-bold cursor-pointer">Remove</button>
-                            </div>
-                        </div>
-                        <button type="button" id="addTagBtn"
-                            class="mt-2 px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 cursor-pointer">Add
-                            Instruction</button>
+                        <label class="block text-gray-700 font-semibold mb-2">Tags (comma-separated)</label>
+                        <input type="text" name="tags" class="w-full p-2 border border-gray-300 rounded-lg">
                     </div>
                     <div class="mb-4">
-                        <label for="image" class="block text-gray-700 font-semibold mb-2">Image (Optional)</label>
+                        <label for="image" class="block text-gray-700 font-semibold mb-2">Image</label>
                         <input type="file" id="image" name="image" accept="image/*"
                             class="w-11/12 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
                     </div>

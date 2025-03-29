@@ -80,6 +80,31 @@ public class ProfileService {
         }
     }
 
+    public ServiceResult<ProfileDTO> getProfileByUserId(String userId) {
+        log.debug("{} Get profile by userId {}", LOG_TITLE,userId);
+        ServiceResult<ProfileDTO> serviceResult;
+        try {
+            profileRepository.startConnection();
+            Optional<Profile> optionalProfile = profileRepository.findByUserID(userId);
+            if (optionalProfile.isPresent()) {
+                Profile profile = optionalProfile.get();
+                ProfileDTO profileDTO = new ProfileDTO(profile.getUserId(),profile.getUsername(),profile.getName(),
+                        profile.getDescription(), profile.getAvatarPhoto(), profile.getFollowers(),
+                        profile.getFollowing(), profile.getRecipes());
+                log.debug("{} Profile found {}", LOG_TITLE, profileDTO);
+                serviceResult = new ServiceResult<>(true, profileDTO, null, 0);
+            } else {
+                log.debug("{} Profile not found", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Profile Not found",1);
+            }
+            profileRepository.closeConnection();
+            return serviceResult;
+        } catch (SQLException e) {
+            log.error(String.valueOf(e));
+            return new ServiceResult<>(false,null,"Internal Error",2);
+        }
+    }
+
     public ServiceResult<ProfileDTO> updateProfileByUsername(String username, ProfileDTO profileDTO, MultipartFile image) {
         log.debug("{} Update profile by username {}", LOG_TITLE,username);
         ServiceResult<ProfileDTO> serviceResult;
@@ -180,4 +205,5 @@ public class ProfileService {
         }
         return imageUrl;
     }
+
 }

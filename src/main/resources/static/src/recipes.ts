@@ -65,6 +65,7 @@ document.addEventListener("click", (event: Event) => {
 
 export interface Recipe {
     id: string;
+    userId: string;
     title: string;
     description: string;
     ingredients: string[];
@@ -170,7 +171,13 @@ cancelCreateModalBtn.addEventListener('click', () => {
 
 createRecipeForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    const tagsInput = (createRecipeForm.querySelector('input[name="tags"]') as HTMLInputElement).value;
+    const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()) : [];
+
     const formData = new FormData(createRecipeForm);
+    formData.delete('tags');
+
+    tags.forEach(tag => formData.append('tags', tag));
 
     fetch('/api/recipes', {
         method: 'POST',
@@ -188,8 +195,6 @@ const ingredientsList = document.getElementById('ingredientsList') as HTMLElemen
 const addIngredientBtn = document.getElementById('addIngredientBtn') as HTMLButtonElement;
 const instructionsList = document.getElementById('instructionsList') as HTMLElement;
 const addInstructionBtn = document.getElementById('addInstructionBtn') as HTMLButtonElement;
-const tagsList = document.getElementById('tagsList') as HTMLElement;
-const addTagBtn = document.getElementById('addTagBtn') as HTMLButtonElement;
 
 function addIngredientField() {
     const ingredientDiv = document.createElement('div');
@@ -221,24 +226,8 @@ function addInstructionField() {
     });
 }
 
-function addTagField() {
-    const tagDiv = document.createElement('div');
-    tagDiv.className = 'flex items-center gap-2';
-    tagDiv.innerHTML = `
-        <input type="text" name="tags" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600" placeholder="e.g., 1 lb chicken">
-        <button type="button" class="remove-tag px-2 py-1 text-red-600 hover:text-red-800">Remove</button>
-    `;
-    tagsList.appendChild(tagDiv);
-    tagDiv.querySelector('.remove-tag')!.addEventListener('click', () => {
-        if (tagsList.children.length > 1) {
-            tagsList.removeChild(tagDiv);
-        }
-    });
-}
-
 addIngredientBtn.addEventListener('click', addIngredientField);
 addInstructionBtn.addEventListener('click', addInstructionField);
-addTagBtn.addEventListener('click', addTagField);
 
 ingredientsList.querySelector('.remove-ingredient')!.addEventListener('click', () => {
     if (ingredientsList.children.length > 1) {
@@ -249,12 +238,6 @@ ingredientsList.querySelector('.remove-ingredient')!.addEventListener('click', (
 instructionsList.querySelector('.remove-instruction')!.addEventListener('click', () => {
     if (instructionsList.children.length > 1) {
         instructionsList.removeChild(instructionsList.children[0]);
-    }
-});
-
-tagsList.querySelector('.remove-tag')!.addEventListener('click', () => {
-    if (tagsList.children.length > 1) {
-        tagsList.removeChild(tagsList.children[0]);
     }
 });
 
