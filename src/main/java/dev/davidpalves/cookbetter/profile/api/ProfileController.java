@@ -75,6 +75,10 @@ public class ProfileController {
             log.warn("{} Wrong user {} tried to update profile {}", LOG_TITLE, authUsername, username);
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+        profileDTO.setDescription(profileDTO.getDescription().trim().replace("\r\n","\n"));
+        if (profileDTO.getDescription().length() > 250) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         log.info("{} Update profile by username request received", LOG_TITLE);
         ServiceResult<ProfileDTO> serviceResult = profileService.updateProfileByUsername(username,profileDTO,image);
         if (serviceResult.isSuccess()) {
