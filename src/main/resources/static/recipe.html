@@ -101,12 +101,11 @@
                 <form id="editRecipeForm" class="space-y-4">
                     <div>
                         <label class="block text-gray-700 font-semibold">Title</label>
-                        <input type="text" name="title" class="w-full p-2 border border-gray-300 rounded-lg"
-                            required>
+                        <input type="text" name="title" class="w-full p-2 border border-gray-300 rounded-lg" required>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-semibold">Description</label>
-                        <textarea name="description" maxlength="750" required
+                        <textarea name="description" maxlength="250" required
                             class="w-full min-h-12 h-20 p-2 border border-gray-300 rounded-lg"></textarea>
                     </div>
                     <div>
@@ -126,16 +125,26 @@
                         <input type="text" name="tags" class="w-full p-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-semibold">Image</label>
-                        <input type="file" name="image" class="w-full p-2 border border-gray-300 rounded-lg">
+                        <label for="image" class="block text-gray-700 font-semibold mb-2">Image</label>
+                        <div class="flex items-center w-11/12">
+                            <div class="relative group">
+                                <input type="file" id="updateImage" name="image" accept="image/*"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file:cursor-pointer group-hover:bg-orange-700">
+                                <button type="button"
+                                    class="px-4 py-2 bg-orange-600 text-white rounded-lg group-hover:bg-orange-700 group-hover:font-bold focus:outline-none focus:ring-2 focus:ring-orange-600">
+                                    Choose File
+                                </button>
+                            </div>
+                            <span id="file-name" class="ml-3 text-gray-600 truncate flex-1">No file chosen</span>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="flex justify-end gap-4 sticky bottom-0 bg-white py-3 rounded-lg">
                 <button type="button" id="cancelEdit"
-                class="cursor-pointer px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    class="cursor-pointer px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
                 <button type="submit" form="editRecipeForm"
-                class="cursor-pointer px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Save</button>
+                    class="cursor-pointer px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">Save</button>
             </div>
         </div>
     </div>

@@ -197,6 +197,17 @@ function loadRecipe() {
                             alert('Failed to update recipe. Please try again.');
                         });
                 });
+                
+                const updateImageInput = document.getElementById('updateImage') as HTMLInputElement;
+                updateImageInput.addEventListener('change', function(e:Event) {
+                    const input = e.target as HTMLInputElement;
+                    let fileName = 'No file chosen';
+                    if (input.files && input.files.length > 0) {
+                        fileName = input.files[0].name;
+                    }
+                    let fileNameDiv = document.getElementById('file-name') as HTMLSpanElement; 
+                    fileNameDiv.textContent = fileName;
+                });
                 loadingSpinner.classList.add('hidden');
 
             });

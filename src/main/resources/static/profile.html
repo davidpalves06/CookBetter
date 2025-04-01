@@ -147,9 +147,18 @@
                             class="min-h-20 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">Passionate home cook sharing delicious recipes from my kitchen to yours!</textarea>
                     </div>
                     <div class="mb-4">
-                        <label for="updateAvatar" class="block text-gray-700 font-semibold mb-2">Profile Picture</label>
-                        <input type="file" id="updateAvatar" name="image" accept="image/*"
-                            class="w-11/12 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
+                        <label for="updateAvatar" class="block text-gray-700 font-semibold mb-2">Image</label>
+                        <div class="flex items-center w-11/12">
+                            <div class="relative group">
+                                <input type="file" id="updateAvatar" name="image" accept="image/*"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer file:cursor-pointer group-hover:bg-orange-700">
+                                <button type="button"
+                                    class="px-4 py-2 bg-orange-600 text-white rounded-lg group-hover:bg-orange-700 group-hover:font-bold focus:outline-none focus:ring-2 focus:ring-orange-600">
+                                    Choose File
+                                </button>
+                            </div>
+                            <span id="file-name" class="ml-3 text-gray-600 truncate flex-1">No file chosen</span>
+                        </div>
                     </div>
                     <div id="updateProfileErrorMessage"
                         class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-2 mb-2 text-xs rounded font-sans font-bold">
@@ -168,7 +177,8 @@
     </section>
 
 
-    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md flex flex-col items-center" id="recipesSection">
+    <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md flex flex-col items-center"
+        id="recipesSection">
         <div class="w-full lg:w-10/12 flex flex-row justify-between items-center mb-4">
             <h3 class="text-2xl font-semibold uppercase text-gray-800 mr-1">Recipes</h3>
             <a href="/recipes"

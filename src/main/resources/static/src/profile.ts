@@ -157,6 +157,7 @@ const editProfileModal = document.getElementById('editProfileModal') as HTMLDivE
 const closeModalBtn = document.getElementById('closeModalBtn') as HTMLButtonElement;
 const cancelModalBtn = document.getElementById('cancelModalBtn') as HTMLButtonElement;
 const editProfileForm = document.getElementById('editProfileForm') as HTMLFormElement;
+const editProfileAvatar = document.getElementById('updateAvatar') as HTMLInputElement;
 
 editProfileBtn.addEventListener('click', () => {
 	editProfileModal.classList.remove('hidden');
@@ -182,7 +183,7 @@ editProfileForm.addEventListener('submit', (e: Event) => {
 
 	const formData = new FormData(editProfileForm);
 
-	fetch(`/api/profile?username=${profileUsername}`, {
+	fetch(`/api/profile/${profileUsername}`, {
 		method: 'PUT',
 		body: formData
 	})
@@ -195,6 +196,16 @@ editProfileForm.addEventListener('submit', (e: Event) => {
 			}
 		})
 		.catch(error => console.error('Error updating profile:', error));
+});
+
+editProfileAvatar.addEventListener('change', function(e:Event) {
+	const input = e.target as HTMLInputElement;
+	let fileName = 'No file chosen';
+	if (input.files && input.files.length > 0) {
+		fileName = input.files[0].name;
+	}
+	let fileNameDiv = document.getElementById('file-name') as HTMLSpanElement; 
+	fileNameDiv.textContent = fileName;
 });
 
 function getProfileRecipes() {

@@ -155,6 +155,7 @@ const createRecipeModal = document.getElementById('createRecipeModal') as HTMLEl
 const closeCreateModalBtn = document.getElementById('closeCreateModalBtn') as HTMLButtonElement;
 const cancelCreateModalBtn = document.getElementById('cancelCreateModalBtn') as HTMLButtonElement;
 const createRecipeForm = document.getElementById('createRecipeForm') as HTMLFormElement;
+const createImageInput = document.getElementById('createImage') as HTMLInputElement;
 
 createRecipeBtn.addEventListener('click', () => {
     createRecipeModal.classList.remove('hidden');
@@ -179,7 +180,6 @@ createRecipeForm.addEventListener('submit', (e) => {
     formData.delete('tags');
 
     tags.forEach(tag => formData.append('tags', tag));
-    console.log(formData.get('description')?.toString().length);
     
     fetch('/api/recipes', {
         method: 'POST',
@@ -198,6 +198,16 @@ createRecipeForm.addEventListener('submit', (e) => {
         errorMessage.classList.remove('hidden')
     });
 }); 
+
+createImageInput.addEventListener('change', function(e:Event) {
+    const input = e.target as HTMLInputElement;
+    let fileName = 'No file chosen';
+    if (input.files && input.files.length > 0) {
+        fileName = input.files[0].name;
+    }
+    let fileNameDiv = document.getElementById('file-name') as HTMLSpanElement; 
+    fileNameDiv.textContent = fileName;
+});
 
 const ingredientsList = document.getElementById('ingredientsList') as HTMLElement;
 const addIngredientBtn = document.getElementById('addIngredientBtn') as HTMLButtonElement;
