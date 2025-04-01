@@ -53,12 +53,17 @@ public class RecipeController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> createRecipe(HttpServletRequest request,@ModelAttribute RecipeDTO recipeDTO,
+    public ResponseEntity<String> createRecipe(HttpServletRequest request,@ModelAttribute RecipeDTO recipeDTO,
                                              @RequestParam(value = "image", required = false) MultipartFile image) {
         log.info("{} Create recipe request received", LOG_TITLE);
         String userId = request.getAttribute("userId").toString();
         if (userId == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        recipeDTO.setDescription(recipeDTO.getDescription().trim().replace("\r\n","\n"));
+        if (recipeDTO.getDescription().length() > 250) {
+            log.warn("{} Description too long: {}",LOG_TITLE,recipeDTO.getDescription());
+            return new ResponseEntity<>("Description has more than 250 characters",HttpStatus.BAD_REQUEST);
         }
         if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -98,6 +103,11 @@ public class RecipeController {
         String userId = request.getAttribute("userId").toString();
         if (userId == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        recipeDTO.setDescription(recipeDTO.getDescription().trim().replace("\r\n","\n"));
+        if (recipeDTO.getDescription().length() > 250) {
+            log.warn("{} Description too long: {}",LOG_TITLE,recipeDTO.getDescription());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

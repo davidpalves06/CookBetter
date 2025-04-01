@@ -28,7 +28,7 @@ public class ProfileRepository {
                 "userId INTEGER NOT NULL , " +
                 "name VARCHAR(100) NOT NULL, " +
                 "username VARCHAR(100) UNIQUE NOT NULL," +
-                "description VARCHAR(100)," +
+                "description VARCHAR(250)," +
                 "avatarPhoto VARCHAR(100)," +
                 "followers INTEGER NOT NULL," +
                 "following INTEGER NOT NULL," +

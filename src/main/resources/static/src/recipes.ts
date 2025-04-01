@@ -1,4 +1,4 @@
-import { getAuthUsername, isLogged, logout } from "./auth.js";
+import { getAuthUserID, getAuthUsername, isLogged, logout } from "./auth.js";
 
 export { }
 
@@ -81,8 +81,9 @@ export interface Recipes {
 function loadRecipes() {
     const recipesList = document.getElementById('recipesList') as HTMLElement;
     const loadingSpinner = document.getElementById('loadingSpinner') as HTMLElement;
-
-    fetch('/api/recipes/user', {
+    const userId = getAuthUserID();
+    
+    fetch(`/api/recipes/user/${userId}`, {
         method: 'GET'
     })
         .then(response => response.json())
@@ -178,18 +179,25 @@ createRecipeForm.addEventListener('submit', (e) => {
     formData.delete('tags');
 
     tags.forEach(tag => formData.append('tags', tag));
-
+    console.log(formData.get('description')?.toString().length);
+    
     fetch('/api/recipes', {
         method: 'POST',
         body: formData
-    }).then(response => {
+    }).then(async response => {
         if (response.ok) window.location.reload();
+        if (response.status == 400) {
+            let errorText = await response.text()
+            throw new Error(errorText);
+        }
+        throw new Error("Could not create recipe. Check your input and try later")
     }
     ).catch(error => {
-        console.error('Error creating recipe:', error);
-        alert('Failed to create recipe.');
+        const errorMessage = document.getElementById('errorMessage') as HTMLDivElement
+        errorMessage.innerHTML = error.message
+        errorMessage.classList.remove('hidden')
     });
-});
+}); 
 
 const ingredientsList = document.getElementById('ingredientsList') as HTMLElement;
 const addIngredientBtn = document.getElementById('addIngredientBtn') as HTMLButtonElement;

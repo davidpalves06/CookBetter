@@ -116,7 +116,7 @@ async function updateProfileInfo() {
 		if (profileInfo.avatarPhoto != undefined) {
 			profileAvatar.src = profileInfo.avatarPhoto
 		} else {
-			profileAvatar.src = "avatar-default-svgrepo-com.svg"
+			profileAvatar.src = "/avatar-default.svg"
 		}
 		profileName.textContent = profileInfo.name
 		profileUsername.textContent = `@${profileInfo.username}`

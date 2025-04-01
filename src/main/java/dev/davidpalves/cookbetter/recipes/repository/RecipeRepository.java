@@ -29,7 +29,7 @@ public class RecipeRepository {
                 "id BIGSERIAL PRIMARY KEY, " +
                 "userId INTEGER NOT NULL, " +
                 "title VARCHAR(100) NOT NULL, " +
-                "description VARCHAR(100) NOT NULL, " +
+                "description VARCHAR(250) NOT NULL, " +
                 "image VARCHAR(100)," +
                 "created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "modified_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +

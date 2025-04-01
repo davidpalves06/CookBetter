@@ -97,7 +97,7 @@
             <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div
                     class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-600 flex items-center justify-center overflow-hidden">
-                    <img id="profileAvatar" src="" alt="User Avatar" class="w-full">
+                    <img id="profileAvatar" src="" alt="User Avatar" class="w-2/3 object-center">
                 </div>
                 <div class="flex-1 text-center md:text-left">
                     <h2 class="text-3xl font-bold text-gray-800" id="profileName"></h2>
@@ -143,7 +143,7 @@
                 <form id="editProfileForm">
                     <div class="mb-4">
                         <label for="editBioArea" class="block text-gray-700 font-semibold mb-2">Profile Bio</label>
-                        <textarea id="editBioArea" name="description" rows="3"
+                        <textarea id="editBioArea" name="description" rows="3" maxlength="250"
                             class="min-h-20 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">Passionate home cook sharing delicious recipes from my kitchen to yours!</textarea>
                     </div>
                     <div class="mb-4">
