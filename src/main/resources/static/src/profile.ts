@@ -220,7 +220,7 @@ function getProfileRecipes() {
                 <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-40 object-contain">
                 <div class="p-4">
 				<h4 class="text-lg font-semibold text-gray-800">${recipe.title}</h4>
-				<p class="text-gray-600 text-sm">${recipe.description}</p>
+				<p class="text-gray-600 text-sm line-clamp-2 overflow-ellipsis">${recipe.description}</p>
 				</div>
 				`;
 				recipeDiv.addEventListener('click', () => {

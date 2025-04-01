@@ -103,7 +103,7 @@ function loadRecipes() {
                     </div>
                     <div class="p-4">
                     <h4 class="text-lg font-semibold text-gray-800">${recipe.title}</h4>
-                    <p class="text-gray-600 text-sm">${recipe.description || 'No description'}</p>
+                    <p class="text-gray-600 text-sm line-clamp-2 overflow-ellipsis">${recipe.description || 'No description'}</p>
                     <div class="mt-2 flex justify-end gap-2">
                         <button class="view-btn px-2 py-1 text-orange-600 hover:text-orange-800 hover:font-semibold cursor-pointer" data-id="${recipe.id}">View</button>
                         <button class="delete-btn px-2 py-1 text-red-600 hover:text-red-800 hover:font-semibold cursor-pointer" data-id="${recipe.id}">Delete</button>
