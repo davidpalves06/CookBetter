@@ -102,12 +102,12 @@ function loadRecipe() {
             }).then((user: ProfileInfo) => {
                 recipeDetail.innerHTML = `
                 <div class="relative rounded-lg overflow-hidden shadow-md">
-                    <img src="${recipe.imageUrl || '/default-recipe.jpg'}" alt="${recipe.title}" class="w-full h-64 object-contain">
+                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-64 object-contain">
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-400 to-transparent opacity-75"></div>
                     <h1 class="absolute bottom-4 left-4 text-3xl font-bold text-white">${recipe.title}</h1>
                     </div>
-                    <div class="flex items-center mt-4">
-                        <img src="${user.avatarPhoto || '/avatar-default.jpg'}" alt="${user.username}" class="w-15 h-15 rounded-full mr-3 object-contain">
+                    <div class="flex items-center gap-4 mt-4">
+                        <img src="${user.avatarPhoto || '/avatar-default.svg'}" alt="${user.username}" class="w-15 h-15 rounded-full object-contain">
                         <span class="text-gray-800 font-medium text-xl">${user.username}</span>
                     </div>
                 <p class="text-gray-700 italic">${recipe.description || 'No description provided'}</p>
