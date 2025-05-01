@@ -2,7 +2,8 @@ import { storage } from "./storage.js";
 
 interface AuthenticationInfo {
     userId:string,
-    username:string
+    username:string,
+    avatar: string
 }
 const verifyAuthAJAX = async () => {
     const verifyAuthResponse = await fetch("/api/auth/verify", {
@@ -41,6 +42,15 @@ function getAuthUserID() {
     return null;
 }
 
+function getAvatar() {
+    let authString = storage.getItem<string>("logged");
+    if (authString != null) {
+        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
+        return authInfo.avatar
+    }
+    return null;
+}
+
 function isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -60,4 +70,4 @@ async function logout() {
     }
 };
 
-export { verifyAuthAJAX, isLogged, getAuthUsername, getAuthUserID, isValidEmail, hasUppercaseAndNumber, logout };
+export { verifyAuthAJAX, isLogged, getAuthUsername, getAuthUserID, getAvatar,isValidEmail, hasUppercaseAndNumber, logout };

@@ -29,16 +29,13 @@
                 <a href="/search"
                     class="text-lg hidden md:block text-orange-600 hover:text-orange-800 hover:font-bold">Search</a>
                 <div class="hidden relative md:inline-block">
-                    <svg aria-label="profile-icon" width="32" height="32"
-                        class="border-2 rounded-3xl text-orange-400 cursor-pointer" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg" id="profileIcon">
-                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" />
-                        <path d="M4 20C4 16.6863 7.13401 14 12 14C16.866 14 20 16.6863 20 20" stroke="currentColor"
-                            stroke-width="2" />
-                    </svg>
+                    <div
+                        class="md:w-11 md:h-11 rounded-full border-3 border-orange-600 flex items-center justify-center overflow-hidden cursor-pointer">
+                        <img id="profileIcon" src="" alt="User Avatar" class="object-cover p-1">
+                    </div>
 
                     <div id="profileMenu"
-                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        class="hidden absolute  right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                         <ul class="py-2">
                             <a href="/profile" class="profile-btn">
                                 <li
@@ -48,7 +45,7 @@
                             <li
                                 class="text-lg px-4 py-2 text-orange-400 hover:bg-orange-100 hover:font-bold cursor-pointer logoutBtn">
                                 Log Out</li>
-                            </zul>
+                        </ul>
                     </div>
                 </div>
 
@@ -61,7 +58,7 @@
                 </div>
 
                 <div id="hamburgerMenu"
-                    class="hidden fixed top-0 right-0 h-full w-full bg-white z-20 sm:hidden flex-col items-center justify-center transform translate-x-full transition-transform duration-300">
+                    class="hidden fixed top-0 right-0 h-full w-full bg-white z-20 md:hidden flex-col items-center justify-center transform translate-x-full transition-transform duration-300">
                     <svg id="closeIcon" width="32" height="32" viewBox="0 0 24 24" fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                         class="absolute top-4 right-4 text-orange-400 cursor-pointer">
@@ -97,7 +94,7 @@
             <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div
                     class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-orange-600 flex items-center justify-center overflow-hidden">
-                    <img id="profileAvatar" src="" alt="User Avatar" class="w-2/3 object-center">
+                    <img id="profileAvatar" src="" alt="User Avatar" class="object-cover">
                 </div>
                 <div class="flex-1 text-center md:text-left">
                     <h2 class="text-3xl font-bold text-gray-800" id="profileName"></h2>
@@ -179,8 +176,8 @@
 
     <section class="w-8/12 mx-auto my-8 p-6 bg-white rounded-lg shadow-md flex flex-col items-center"
         id="recipesSection">
-        <div class="w-full lg:w-10/12 flex flex-row justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold uppercase text-gray-800 mr-1">Recipes</h3>
+        <div class="w-full lg:w-11/12 flex flex-row justify-between items-center mb-4">
+            <h3 class="text-2xl font-semibold capitalize text-gray-800 mr-1">Recipes</h3>
             <a href="/recipes"
                 class="px-4 py-2 text-nowrap font-medium bg-orange-600 text-white rounded-lg hover:bg-orange-700 hover:font-bold cursor-pointer"
                 id="manageRecipeAnchor">Manage recipes</a>
@@ -188,9 +185,9 @@
         <div id="recipesLoadingSpinner" class="flex justify-center items-center h-64">
             <div class="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <div id="recipeGrid" class="w-11/12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 grid">
+        <div id="recipeGrid" class="w-full lg:w-11/12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 grid text-nowrap">
         </div>
-        <div id="recipeError" class="hidden">
+        <div id="recipeError" class="hidden ">
         </div>
     </section>
 

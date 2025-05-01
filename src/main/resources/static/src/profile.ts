@@ -1,4 +1,4 @@
-import { getAuthUsername, isLogged, logout } from "./auth.js";
+import { getAuthUsername, getAvatar, isLogged, logout } from "./auth.js";
 import { Recipes, Recipe } from "./recipes.js";
 
 export { };
@@ -11,7 +11,7 @@ let profileUserId: string = "";
 
 document.title = `@${profileUsername} - CookBetter`
 
-const profileIcon = document.getElementById('profileIcon') as HTMLElement;
+const profileIcon = document.getElementById('profileIcon') as HTMLImageElement;
 const authenticationBtnDiv = document.getElementById('authenticationBtnDiv') as HTMLDivElement;
 const loggedInDiv = document.getElementById('loggedInDiv') as HTMLDivElement;
 const editProfileBtn = document.getElementById('editProfileBtn') as HTMLButtonElement;
@@ -20,6 +20,12 @@ async function handleAuthenticationState() {
 	let loggedIn: boolean = await isLogged();
 	if (loggedIn) {
 		let username = getAuthUsername();
+		let userAvatar = getAvatar();
+		if (userAvatar != undefined && userAvatar != '') {
+			profileIcon.src = userAvatar;
+		} else {
+			profileIcon.src = "/avatar-default.svg"
+		}
 		authenticationBtnDiv.classList.add('hidden');
 		loggedInDiv.classList.remove('hidden');
 		document.querySelectorAll(".profile-btn").forEach((item) => {
