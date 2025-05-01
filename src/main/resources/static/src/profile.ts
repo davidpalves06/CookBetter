@@ -20,7 +20,9 @@ async function handleAuthenticationState() {
 	let loggedIn: boolean = await isLogged();
 	if (loggedIn) {
 		let username = getAuthUsername();
-		let userAvatar = getAvatar();
+		let userAvatar = await getAvatar();
+		console.log(userAvatar);
+		
 		if (userAvatar != undefined && userAvatar != '') {
 			profileIcon.src = userAvatar;
 		} else {

@@ -1,73 +1,107 @@
+import { ProfileInfo } from "./profile.js";
 import { storage } from "./storage.js";
 
 interface AuthenticationInfo {
-    userId:string,
-    username:string,
-    avatar: string
+  userId: string;
+  username: string;
 }
 const verifyAuthAJAX = async () => {
-    const verifyAuthResponse = await fetch("/api/auth/verify", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    if (verifyAuthResponse.ok) {
-        const verifyAuthResponseJSON = await verifyAuthResponse.json();
-        storage.setItem<string>("logged", JSON.stringify(verifyAuthResponseJSON), 300)
-        return true;
-    }
-    return false;
+  const verifyAuthResponse = await fetch("/api/auth/verify", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (verifyAuthResponse.ok) {
+    const verifyAuthResponseJSON = await verifyAuthResponse.json();
+    storage.setItem<string>(
+      "logged",
+      JSON.stringify(verifyAuthResponseJSON),
+      300
+    );
+    return true;
+  }
+  return false;
 };
 
 async function isLogged() {
-    return storage.getItem<string>("logged") != null || await verifyAuthAJAX();
+  return storage.getItem<string>("logged") != null || (await verifyAuthAJAX());
 }
 
 function getAuthUsername() {
-    let authString = storage.getItem<string>("logged");
-    if (authString != null) {
-        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
-        return authInfo.username
-    }
-    return null;
+  let authString = storage.getItem<string>("logged");
+  if (authString != null) {
+    let authInfo = JSON.parse(
+      storage.getItem<string>("logged") as string
+    ) as AuthenticationInfo;
+    return authInfo.username;
+  }
+  return null;
 }
 
 function getAuthUserID() {
-    let authString = storage.getItem<string>("logged");
-    if (authString != null) {
-        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
-        return authInfo.userId
-    }
-    return null;
+  let authString = storage.getItem<string>("logged");
+  if (authString != null) {
+    let authInfo = JSON.parse(
+      storage.getItem<string>("logged") as string
+    ) as AuthenticationInfo;
+    return authInfo.userId;
+  }
+  return null;
 }
 
-function getAvatar() {
-    let authString = storage.getItem<string>("logged");
-    if (authString != null) {
-        let authInfo = JSON.parse(storage.getItem<string>("logged") as string) as AuthenticationInfo;
-        return authInfo.avatar
-    }
+async function getAvatar() {
+  let authString = storage.getItem<string>("logged");
+  if (authString != null) {
+    let authInfo = JSON.parse(
+      storage.getItem<string>("logged") as string
+    ) as AuthenticationInfo;
+    return await fetch(`/api/profile?userId=${authInfo.userId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json() as Promise<ProfileInfo>;
+        } else {
+          throw new Error("Error getting profile info");
+        }
+      })
+      .then((user: ProfileInfo) => {
+        return user.avatarPhoto;
+      })
+      .catch((error) => console.error("Error updating profile:", error));
+  } else {
     return null;
+  }
 }
 
 function isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 function hasUppercaseAndNumber(input: string): boolean {
-    return /(?=.*[A-Z])(?=.*[0-9])/.test(input);
+  return /(?=.*[A-Z])(?=.*[0-9])/.test(input);
 }
 
 async function logout() {
-    const logoutResponse = await fetch("/api/auth/logout", {
-        method: "GET"
-    });
-    if (logoutResponse.ok) {
-        window.location.reload();
-        storage.removeItem("logged")
-    }
-};
+  const logoutResponse = await fetch("/api/auth/logout", {
+    method: "GET",
+  });
+  if (logoutResponse.ok) {
+    window.location.reload();
+    storage.removeItem("logged");
+  }
+}
 
-export { verifyAuthAJAX, isLogged, getAuthUsername, getAuthUserID, getAvatar,isValidEmail, hasUppercaseAndNumber, logout };
+export {
+  verifyAuthAJAX,
+  isLogged,
+  getAuthUsername,
+  getAuthUserID,
+  getAvatar,
+  isValidEmail,
+  hasUppercaseAndNumber,
+  logout,
+};
