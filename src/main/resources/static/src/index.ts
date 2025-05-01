@@ -1,16 +1,23 @@
-import { isLogged, getAuthUsername, logout } from "./auth.js";
+import { isLogged, getAuthUsername, logout, getAvatar } from "./auth.js";
 
 export { };
 
 const authenticationBtnDiv = document.getElementById('authenticationBtnDiv') as HTMLDivElement;
 const loggedInDiv = document.getElementById('loggedInDiv') as HTMLDivElement;
-const profileIcon = document.getElementById('profileIcon') as HTMLElement;
+const profileIcon = document.getElementById('profileIcon') as HTMLImageElement;
 const getStartedBtn = document.getElementById('getStartedBtn') as HTMLButtonElement;
 
 async function handleAuthenticationState() {
     let loggedIn: boolean = await isLogged();
     if (loggedIn) {
         let username = getAuthUsername();
+        let userAvatar = await getAvatar();
+		
+		if (userAvatar != undefined && userAvatar != '') {
+			profileIcon.src = userAvatar;
+		} else {
+			profileIcon.src = "/avatar-default.svg"
+		}
         authenticationBtnDiv.classList.add('hidden');
         loggedInDiv.classList.remove('hidden');
         getStartedBtn.addEventListener('click', () => {

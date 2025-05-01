@@ -1,15 +1,22 @@
-import { isLogged, logout, getAuthUserID, getAuthUsername } from "./auth.js";
+import { isLogged, logout, getAuthUserID, getAuthUsername, getAvatar } from "./auth.js";
 import { Recipe } from "./recipes.js";
 import { ProfileInfo } from "./profile.js";
 export { }
 
-const profileIcon = document.getElementById('profileIcon') as HTMLElement;
+const profileIcon = document.getElementById('profileIcon') as HTMLImageElement;
 let authUserId : string | null;
 async function handleAuthenticationState() {
     let loggedIn: boolean = await isLogged();
     if (loggedIn) {
         let username = getAuthUsername();
         authUserId = getAuthUserID();
+        let userAvatar = await getAvatar();
+		
+		if (userAvatar != undefined && userAvatar != '') {
+			profileIcon.src = userAvatar;
+		} else {
+			profileIcon.src = "/avatar-default.svg"
+		}
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
             anchorTag.href = `/profile/${username}`;
@@ -102,12 +109,12 @@ function loadRecipe() {
             }).then((user: ProfileInfo) => {
                 recipeDetail.innerHTML = `
                 <div class="relative rounded-lg overflow-hidden shadow-md">
-                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-64 object-contain">
+                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-64 object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-gray-400 to-transparent opacity-75"></div>
                     <h1 class="absolute bottom-4 left-4 text-3xl font-bold text-white">${recipe.title}</h1>
                     </div>
                     <div class="flex items-center gap-4 mt-4">
-                        <img src="${user.avatarPhoto || '/avatar-default.svg'}" alt="${user.username}" class="w-15 h-15 rounded-full object-contain">
+                        <img src="${user.avatarPhoto || '/avatar-default.svg'}" alt="${user.username}" class="w-15 h-15 rounded-full object-cover">
                         <span class="text-gray-800 font-medium text-xl">${user.username}</span>
                     </div>
                 <p class="text-gray-700 italic">${recipe.description || 'No description provided'}</p>

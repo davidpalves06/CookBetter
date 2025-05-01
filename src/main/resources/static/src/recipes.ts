@@ -1,13 +1,20 @@
-import { getAuthUserID, getAuthUsername, isLogged, logout } from "./auth.js";
+import { getAuthUserID, getAuthUsername, getAvatar, isLogged, logout } from "./auth.js";
 
 export { }
 
-const profileIcon = document.getElementById('profileIcon') as HTMLElement;
+const profileIcon = document.getElementById('profileIcon') as HTMLImageElement;
 
 async function handleAuthenticationState() {
     let loggedIn: boolean = await isLogged();
     if (loggedIn) {
         let username = getAuthUsername();
+        let userAvatar = await getAvatar();
+		
+		if (userAvatar != undefined && userAvatar != '') {
+			profileIcon.src = userAvatar;
+		} else {
+			profileIcon.src = "/avatar-default.svg"
+		}
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
             anchorTag.href = `/profile/${username}`;
@@ -97,8 +104,8 @@ function loadRecipes() {
                     const recipeCard = document.createElement('div');
                     recipeCard.className = ' bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow';
                     recipeCard.innerHTML = `
-                    <div class="mt-2 flex justify-center gap-2 relative">
-                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="flex h-40 object-cover rounded-sm">
+                    <div class="mt-2 flex justify-center gap-2 relative h-40">
+                    <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="flex object-fit rounded-sm">
                     <div class="absolute -inset-0.5 bg-gradient-to-t from-gray-50 via-transparent to-transparent"></div>
                     </div>
                     <div class="p-4">
