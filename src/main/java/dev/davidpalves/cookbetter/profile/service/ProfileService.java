@@ -117,9 +117,9 @@ public class ProfileService {
                     profile.setDescription(profileDTO.getDescription());
                 }
                 String imageUrl = getImageUrl(image);
-                profile.setAvatarPhoto(imageUrl);
-                if (profileDTO.getAvatarPhoto() != null && !profileDTO.getAvatarPhoto().equals(profile.getAvatarPhoto())) {
-                    profile.setAvatarPhoto(profileDTO.getAvatarPhoto());
+                profileDTO.setAvatarPhoto(imageUrl);
+                if (imageUrl != null && !imageUrl.equals(profile.getAvatarPhoto())) {
+                    profile.setAvatarPhoto(imageUrl);
                 }
                 if (profileRepository.update(profile)) {
                     log.debug("{} Profile updated {}", LOG_TITLE, profileDTO);
@@ -196,7 +196,7 @@ public class ProfileService {
     }
 
     private String getImageUrl(MultipartFile image) throws IOException {
-        String imageUrl = "";
+        String imageUrl = null;
         if (image != null && !image.isEmpty()) {
             String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
             Path filePath = Paths.get("src/main/resources/static/" + PROFILE_PHOTO_DIR + fileName);

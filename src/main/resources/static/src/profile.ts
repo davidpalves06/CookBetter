@@ -113,7 +113,7 @@ async function updateProfileInfo() {
 		const profileFollowing = document.getElementById('profileFollowing') as HTMLParagraphElement
 		const editBioArea = document.getElementById('editBioArea') as HTMLTextAreaElement;
 
-		if (profileInfo.avatarPhoto != undefined) {
+		if (profileInfo.avatarPhoto != undefined && profileInfo.avatarPhoto != "") {
 			profileAvatar.src = profileInfo.avatarPhoto
 		} else {
 			profileAvatar.src = "/avatar-default.svg"
