@@ -105,6 +105,16 @@
                         <textarea name="description" maxlength="250" required
                             class="w-full min-h-12 h-20 p-2 border border-gray-300 rounded-lg"></textarea>
                     </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-semibold mb-2">Preparation Time</label>
+                        <div class="flex gap-4 items-center">
+                            <div>
+                                <label for="duration" class="block text-gray-600 text-sm mb-1">Minutes</label>
+                                <input type="number" id="duration" name="duration" min="1" value="30"
+                                    class="w-20 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600">
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <label class="block text-gray-700 font-semibold">Ingredients</label>
                         <div id="editIngredientsList" class="space-y-2"></div>

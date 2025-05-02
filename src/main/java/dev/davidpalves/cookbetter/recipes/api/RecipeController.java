@@ -1,6 +1,7 @@
 package dev.davidpalves.cookbetter.recipes.api;
 
 import dev.davidpalves.cookbetter.models.ServiceResult;
+import dev.davidpalves.cookbetter.recipes.dto.CommentDTO;
 import dev.davidpalves.cookbetter.recipes.dto.RecipeDTO;
 import dev.davidpalves.cookbetter.recipes.dto.RecipesDTO;
 import dev.davidpalves.cookbetter.recipes.service.RecipeService;
@@ -65,7 +66,9 @@ public class RecipeController {
             log.warn("{} Description too long: {}",LOG_TITLE,recipeDTO.getDescription());
             return new ResponseEntity<>("Description has more than 250 characters",HttpStatus.BAD_REQUEST);
         }
-        if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
+        if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty()
+                || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty() || recipeDTO.getDuration() <= 0) {
+            log.warn("{} Something wrong with request: {}",LOG_TITLE,recipeDTO);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         ServiceResult<String> serviceResult = recipeService.createRecipe(recipeDTO,image,userId);
@@ -109,7 +112,9 @@ public class RecipeController {
             log.warn("{} Description too long: {}",LOG_TITLE,recipeDTO.getDescription());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty() || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty()) {
+        if (recipeDTO.getIngredients() == null || recipeDTO.getIngredients().isEmpty()
+                || recipeDTO.getInstructions() == null || recipeDTO.getInstructions().isEmpty() || recipeDTO.getDuration() <= 0) {
+            log.warn("{} Something wrong with request: {}",LOG_TITLE,recipeDTO);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         ServiceResult<String> serviceResult = recipeService.updateRecipe(recipeDTO,image,recipeId);
@@ -140,6 +145,30 @@ public class RecipeController {
                 return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/{recipeId}/comments")
+    public ResponseEntity<String> addComment(HttpServletRequest request,@PathVariable String recipeId,@ModelAttribute CommentDTO commentDTO) {
+        log.info("{} Add comment to recipe request received", LOG_TITLE);
+        String userId = request.getAttribute("userId").toString();
+        if (userId == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        commentDTO.setContent(commentDTO.getContent().trim().replace("\r\n","\n"));
+        if (commentDTO.getContent().length() > 250) {
+            log.warn("{} Comment Content too long: {}",LOG_TITLE,commentDTO.getContent());
+            return new ResponseEntity<>("Comment content has more than 250 characters",HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult<String> serviceResult = recipeService.addComment(commentDTO,userId,recipeId);
+        if (serviceResult.isSuccess()) {
+            log.info("{} Comment added successfully", LOG_TITLE);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else {
+            log.info("{} Comment failed to be added due to {}.", LOG_TITLE,serviceResult.getErrorMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

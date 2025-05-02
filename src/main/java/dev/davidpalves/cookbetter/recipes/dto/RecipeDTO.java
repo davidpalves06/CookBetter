@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.Duration;
 import java.util.List;
 
 @Getter
@@ -18,5 +19,6 @@ public class RecipeDTO {
     private List<String> instructions;
     private List<String> tags;
     private String imageUrl;
+    private int duration;
 
 }

@@ -19,13 +19,14 @@ const editProfileBtn = document.getElementById('editProfileBtn') as HTMLButtonEl
 async function handleAuthenticationState() {
 	let loggedIn: boolean = await isLogged();
 	if (loggedIn) {
-		let username = getAuthUsername();
+		let username = await getAuthUsername();
 		let userAvatar = await getAvatar();
 		
 		if (userAvatar != undefined && userAvatar != '') {
 			profileIcon.src = userAvatar;
 		} else {
-			profileIcon.src = "/avatar-default.svg"
+			profileIcon.src = "/avatar-default.svg";
+            profileIcon.classList.add("p-1");
 		}
 		authenticationBtnDiv.classList.add('hidden');
 		loggedInDiv.classList.remove('hidden');
@@ -124,6 +125,7 @@ async function updateProfileInfo() {
 			profileAvatar.src = profileInfo.avatarPhoto
 		} else {
 			profileAvatar.src = "/avatar-default.svg"
+			profileAvatar.classList.add("p-2")
 		}
 		profileName.textContent = profileInfo.name
 		profileUsername.textContent = `@${profileInfo.username}`

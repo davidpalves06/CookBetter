@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Component("RecipeRepository")
 @Slf4j
 @DependsOn("UserRepository")
 public class RecipeRepository {
@@ -31,6 +31,7 @@ public class RecipeRepository {
                 "title VARCHAR(100) NOT NULL, " +
                 "description VARCHAR(750) NOT NULL, " +
                 "image VARCHAR(100)," +
+                "duration INTEGER NOT NULL," +
                 "created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "modified_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP," +
                 "FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE" +
@@ -57,12 +58,23 @@ public class RecipeRepository {
                 "FOREIGN KEY (recipeId) REFERENCES recipes(id) ON DELETE CASCADE" +
                 ")";
 
+        String commentsTableSql = "CREATE TABLE IF NOT EXISTS recipes_comments (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "userId INTEGER NOT NULL , " +
+                "recipeId INTEGER NOT NULL , " +
+                "parent INTEGER, " +
+                "content VARCHAR(250) NOT NULL, " +
+                "FOREIGN KEY (recipeId) REFERENCES recipes(id) ON DELETE CASCADE," +
+                "FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE" +
+                ")";
+
         try (Connection connection = connectionProvider.getConnection(); Statement stmt = connection.createStatement()) {
             log.info("Creating recipe table if it does not exist");
             stmt.execute(recipeTableSql);
             stmt.execute(ingredientTableSql);
             stmt.execute(tagsTableSql);
             stmt.execute(instructionsTableSql);
+            stmt.execute(commentsTableSql);
             connection.commit();
         }
     }
@@ -85,7 +97,7 @@ public class RecipeRepository {
             throw new SQLException("Connection is not open");
         }
         String sql = """
-                INSERT INTO recipes (title, userId, description, image) VALUES (?, ?, ?, ?)
+                INSERT INTO recipes (title, userId, description, image,duration) VALUES (?, ?, ?, ?, ?)
                 RETURNING id;
 """;
         String recipeId;
@@ -94,6 +106,7 @@ public class RecipeRepository {
             stmt.setInt(2, Integer.parseInt(recipe.getUserId()));
             stmt.setString(3, recipe.getDescription());
             stmt.setString(4, recipe.getImage());
+            stmt.setInt(5,recipe.getDuration());
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     recipeId = rs.getString("id");
@@ -146,6 +159,7 @@ public class RecipeRepository {
                     r.id,
                     r.title,
                     r.description,
+                    r.duration,
                     r.userid,
                     r.image,
                     r.created_at,
@@ -163,6 +177,7 @@ public class RecipeRepository {
                     String userId = rs.getString("userId");
                     String title = rs.getString("title");
                     String description = rs.getString("description");
+                    int duration = rs.getInt("duration");
                     String image = rs.getString("image");
                     String[] ingredientsArray = (String[]) rs.getArray("ingredients").getArray();
                     List<String> ingredients = ingredientsArray != null ? Arrays.asList(ingredientsArray) : new ArrayList<>();
@@ -177,6 +192,7 @@ public class RecipeRepository {
                     recipe.setTitle(title);
                     recipe.setUserId(userId);
                     recipe.setDescription(description);
+                    recipe.setDuration(duration);
                     recipe.setImage(image);
                     recipe.setIngredients(ingredients);
                     recipe.setInstructions(instructions);
@@ -206,6 +222,7 @@ public class RecipeRepository {
                     String recipeId = rs.getString("id");
                     String title = rs.getString("title");
                     String description = rs.getString("description");
+                    int duration = rs.getInt("duration");
                     String image = rs.getString("image");
                     LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
                     LocalDateTime modifiedAt = rs.getTimestamp("modified_at").toLocalDateTime();
@@ -213,6 +230,7 @@ public class RecipeRepository {
                     recipe.setTitle(title);
                     recipe.setUserId(userId);
                     recipe.setDescription(description);
+                    recipe.setDuration(duration);
                     recipe.setImage(image);
                     recipe.setCreatedAt(createdAt);
                     recipe.setModifiedAt(modifiedAt);
@@ -260,6 +278,7 @@ public class RecipeRepository {
                 SET title = ?,
                     description = ?,
                     image = ?,
+                    duration = ?,
                     modified_at = CURRENT_TIMESTAMP
                 WHERE id = ?;
 """;
@@ -267,7 +286,8 @@ public class RecipeRepository {
             stmt.setString(1, recipe.getTitle());
             stmt.setString(2, recipe.getDescription());
             stmt.setString(3, recipe.getImage());
-            stmt.setInt(4, Integer.parseInt(recipe.getId()));
+            stmt.setInt(4, recipe.getDuration());
+            stmt.setInt(5, Integer.parseInt(recipe.getId()));
             if (stmt.executeUpdate() == 0) {
                 return false;
             }
@@ -313,13 +333,15 @@ public class RecipeRepository {
             stmt.executeUpdate();
         }
 
-        for (String tag : recipe.getTags()) {
+        if (recipe.getTags() != null) {
+            for (String tag : recipe.getTags()) {
             String insertTagSql = "INSERT INTO recipes_tags (recipeid, tag) VALUES (?, ?)";
             try (PreparedStatement ingStmt = connection.prepareStatement(insertTagSql)) {
                 ingStmt.setInt(1, Integer.parseInt(recipe.getId()));
                 ingStmt.setString(2, tag);
                 ingStmt.executeUpdate();
             }
+        }
         }
         return true;
     }

@@ -2,9 +2,12 @@ package dev.davidpalves.cookbetter.recipes.service;
 
 import dev.davidpalves.cookbetter.models.ServiceResult;
 import dev.davidpalves.cookbetter.profile.service.ProfileService;
+import dev.davidpalves.cookbetter.recipes.dto.CommentDTO;
 import dev.davidpalves.cookbetter.recipes.dto.RecipeDTO;
 import dev.davidpalves.cookbetter.recipes.dto.RecipesDTO;
+import dev.davidpalves.cookbetter.recipes.models.Comment;
 import dev.davidpalves.cookbetter.recipes.models.Recipe;
+import dev.davidpalves.cookbetter.recipes.repository.CommentRepository;
 import dev.davidpalves.cookbetter.recipes.repository.RecipeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,11 +31,13 @@ public class RecipeService {
     private static final String RECIPE_PHOTO_DIR = "recipes/assets/";
 
     private final RecipeRepository recipeRepository;
+    private final CommentRepository commentRepository;
     private final ProfileService profileService;
 
 
-    public RecipeService(RecipeRepository recipeRepository, ProfileService profileService) {
+    public RecipeService(RecipeRepository recipeRepository, CommentRepository commentRepository, ProfileService profileService) {
         this.recipeRepository = recipeRepository;
+        this.commentRepository = commentRepository;
         this.profileService = profileService;
         File file = new File("src/main/resources/static/" + RECIPE_PHOTO_DIR);
         boolean created = file.mkdirs();
@@ -55,6 +60,7 @@ public class RecipeService {
             recipe.setInstructions(recipeDTO.getInstructions());
             recipe.setIngredients(recipeDTO.getIngredients());
             recipe.setTags(recipeDTO.getTags());
+            recipe.setDuration(recipeDTO.getDuration());
             String imageUrl = getImageUrl(image);
             recipe.setImage(imageUrl);
             String id = recipeRepository.save(recipe);
@@ -83,7 +89,7 @@ public class RecipeService {
     }
 
     public ServiceResult<String> updateRecipe(RecipeDTO recipeDTO, MultipartFile image, String recipeId) {
-        log.debug("{} Create recipe : {}", LOG_TITLE,recipeDTO);
+        log.debug("{} Update recipe : {}", LOG_TITLE,recipeDTO);
         ServiceResult<String> serviceResult;
         try {
             recipeRepository.startConnection();
@@ -95,6 +101,7 @@ public class RecipeService {
                 recipe.setIngredients(recipeDTO.getIngredients());
                 recipe.setInstructions(recipeDTO.getInstructions());
                 recipe.setTags(recipeDTO.getTags());
+                recipe.setDuration(recipeDTO.getDuration());
                 String imageUrl = getImageUrl(image);
                 if (imageUrl != null) recipe.setImage(imageUrl);
 
@@ -205,12 +212,42 @@ public class RecipeService {
         }
     }
 
+    public ServiceResult<String> addComment(CommentDTO commentDTO, String userId, String recipeId) {
+        log.debug("{} Delete recipe {}", LOG_TITLE,recipeId);
+        ServiceResult<String> serviceResult;
+        try {
+            commentRepository.startConnection();
+            Comment newComment = new Comment();
+            newComment.setRecipeId(recipeId);
+            newComment.setUserId(userId);
+            newComment.setParentComment(commentDTO.getParentComment());
+            newComment.setContent(commentDTO.getContent());
+            String id = commentRepository.save(newComment);
+            if (id != null) {
+                log.debug("{} Comment added {}", LOG_TITLE, newComment);
+                serviceResult = new ServiceResult<>(true, "", null, 0);
+                commentRepository.closeConnection();
+            }
+            else {
+                log.debug("{} Error creating comment", LOG_TITLE);
+                serviceResult = new ServiceResult<>(false,null,"Error adding comment",1);
+                commentRepository.rollbackConnection();
+            }
+            return serviceResult;
+        } catch (SQLException e) {
+            log.error(String.valueOf(e));
+            commentRepository.rollbackConnection();
+            return new ServiceResult<>(false,null,"Internal Error",1);
+        }
+    }
+
     private RecipeDTO buildRecipeDTO(Recipe recipe) {
         RecipeDTO recipeDTO = new RecipeDTO();
         recipeDTO.setId(recipe.getId());
         recipeDTO.setUserId(recipe.getUserId());
         recipeDTO.setTitle(recipe.getTitle());
         recipeDTO.setDescription(recipe.getDescription());
+        recipeDTO.setDuration(recipe.getDuration());
         recipeDTO.setImageUrl(recipe.getImage());
         recipeDTO.setInstructions(recipe.getInstructions());
         recipeDTO.setIngredients(recipe.getIngredients());

@@ -16,7 +16,8 @@ async function handleAuthenticationState() {
 		if (userAvatar != undefined && userAvatar != '') {
 			profileIcon.src = userAvatar;
 		} else {
-			profileIcon.src = "/avatar-default.svg"
+			profileIcon.src = "/avatar-default.svg";
+            profileIcon.classList.add("p-1");
 		}
         authenticationBtnDiv.classList.add('hidden');
         loggedInDiv.classList.remove('hidden');

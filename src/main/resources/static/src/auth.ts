@@ -28,7 +28,10 @@ async function isLogged() {
   return storage.getItem<string>("logged") != null || (await verifyAuthAJAX());
 }
 
-function getAuthUsername() {
+async function getAuthUsername() {
+  if (!(await isLogged())) {
+    return null;
+  }
   let authString = storage.getItem<string>("logged");
   if (authString != null) {
     let authInfo = JSON.parse(
@@ -39,7 +42,10 @@ function getAuthUsername() {
   return null;
 }
 
-function getAuthUserID() {
+async function getAuthUserID() {
+  if (!(await isLogged())) {
+    return null;
+  }
   let authString = storage.getItem<string>("logged");
   if (authString != null) {
     let authInfo = JSON.parse(
@@ -51,6 +57,9 @@ function getAuthUserID() {
 }
 
 async function getAvatar() {
+  if (!(await isLogged())) {
+    return null;
+  }
   let authString = storage.getItem<string>("logged");
   if (authString != null) {
     let authInfo = JSON.parse(

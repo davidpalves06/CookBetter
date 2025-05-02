@@ -7,13 +7,14 @@ const profileIcon = document.getElementById('profileIcon') as HTMLImageElement;
 async function handleAuthenticationState() {
     let loggedIn: boolean = await isLogged();
     if (loggedIn) {
-        let username = getAuthUsername();
+        let username = await getAuthUsername();
         let userAvatar = await getAvatar();
 		
 		if (userAvatar != undefined && userAvatar != '') {
 			profileIcon.src = userAvatar;
 		} else {
-			profileIcon.src = "/avatar-default.svg"
+			profileIcon.src = "/avatar-default.svg";
+            profileIcon.classList.add("p-1");
 		}
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
@@ -75,6 +76,7 @@ export interface Recipe {
     userId: string;
     title: string;
     description: string;
+    duration: number;
     ingredients: string[];
     instructions: string[];
     tags: string[];
@@ -85,10 +87,10 @@ export interface Recipes {
     recipes: Recipe[]
 }
 
-function loadRecipes() {
+async function loadRecipes() {
     const recipesList = document.getElementById('recipesList') as HTMLElement;
     const loadingSpinner = document.getElementById('loadingSpinner') as HTMLElement;
-    const userId = getAuthUserID();
+    const userId = await getAuthUserID();
     
     fetch(`/api/recipes/user/${userId}`, {
         method: 'GET'

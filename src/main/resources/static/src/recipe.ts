@@ -8,14 +8,15 @@ let authUserId : string | null;
 async function handleAuthenticationState() {
     let loggedIn: boolean = await isLogged();
     if (loggedIn) {
-        let username = getAuthUsername();
-        authUserId = getAuthUserID();
+        let username = await getAuthUsername();
+        authUserId = await getAuthUserID();
         let userAvatar = await getAvatar();
 		
 		if (userAvatar != undefined && userAvatar != '') {
 			profileIcon.src = userAvatar;
 		} else {
-			profileIcon.src = "/avatar-default.svg"
+			profileIcon.src = "/avatar-default.svg";
+            profileIcon.classList.add("p-1");
 		}
         document.querySelectorAll(".profile-btn").forEach((item) => {
             let anchorTag = item as HTMLAnchorElement;
@@ -72,6 +73,16 @@ document.addEventListener("click", (event: Event) => {
     }
 });
 
+
+function formatDuration(minutes:number) {
+    const displayHours = Math.floor(minutes/60);
+    const displayMinutes = minutes%60;
+    const parts = [];
+    if (displayHours > 0) parts.push(`${displayHours} hour${displayHours !== 1 ? 's' : ''}`);
+    if (displayMinutes > 0) parts.push(`${displayMinutes} minute${displayMinutes !== 1 ? 's' : ''}`);
+    return parts.length > 0 ? parts.join(', ') : '0 minutes';
+}
+
 function loadRecipe() {
     const recipeDetail = document.getElementById('recipeDetail') as HTMLElement;
     const loadingSpinner = document.getElementById('loadingSpinner') as HTMLElement;
@@ -107,6 +118,7 @@ function loadRecipe() {
                     throw new Error("Error getting profile info");
                 }
             }).then((user: ProfileInfo) => {
+                let durationString = `${Math.floor(recipe.duration/60)} H : ${recipe.duration%60} M`
                 recipeDetail.innerHTML = `
                 <div class="relative rounded-lg overflow-hidden shadow-md">
                     <img src="${recipe.imageUrl || '/default-recipe.svg'}" alt="${recipe.title}" class="w-full h-64 object-cover">
@@ -118,6 +130,10 @@ function loadRecipe() {
                         <span class="text-gray-800 font-medium text-xl">${user.username}</span>
                     </div>
                 <p class="text-gray-700 italic">${recipe.description || 'No description provided'}</p>
+                <div class="flex items-center gap-2 mt-4">
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 0c6.623 0 12 5.377 12 12s-5.377 12-12 12-12-5.377-12-12 5.377-12 12-12zm0 1c6.071 0 11 4.929 11 11s-4.929 11-11 11-11-4.929-11-11 4.929-11 11-11zm0 11h6v1h-7v-9h1v8z"/></svg>
+                    <span class="text-gray-700 font-medium">${formatDuration(recipe.duration)}</span>
+                </div>
                 <div>
                 <h2 class="text-xl font-semibold text-gray-800 mb-2">Ingredients</h2>
                 <ul class="list-disc list-inside space-y-1 text-gray-700">
@@ -235,6 +251,7 @@ function populateEditForm(recipe: Recipe) {
     (form.querySelector('input[name="title"]') as HTMLInputElement).value = recipe.title;
     (form.querySelector('textarea[name="description"]') as HTMLTextAreaElement).value = recipe.description || '';
     (form.querySelector('input[name="tags"]') as HTMLInputElement).value = recipe.tags.join(', ');
+    (form.querySelector('input[name="duration"]') as HTMLInputElement).value = recipe.duration.toString();
 
     editIngredientsList.innerHTML = '';
     recipe.ingredients.forEach(ingredient => addInputField(editIngredientsList, 'ingredients', ingredient));
